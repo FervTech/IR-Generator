@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice & Receipt Generator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<nav>
+  <div class="nav-left">
+    <div class="logo" onclick="location.reload()">
+      IR Generator
+    </div>
+  </div>
+  <div class="nav-right">
+       <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn">🌙 Dark Mode</button>
+    <span style="font-weight: bold;color:white;">Support <i class="fa-solid fa-hand-point-right"></i></span>
+    <a href="https://buymeacoffee.com/fervtech" target="_blank" class="buy-coffee">☕ Buy Me Coffee</a>
+    <button id="paystackBtn" class="buy-coffee" style="background:#04AA6D;color:white;">Mobile money</button>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="header">
+    <h1>Invoice/Receipt Generator</h1>
+    <p>Create professional invoices and receipts instantly</p>
+  </div>
+
+  <div class="form-card">
+    <form id="invoiceForm" onsubmit="generatePDF(event)">
+      <div class="section-title">Company Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="companyName">Company Name</label>
+          <input type="text" id="companyName" placeholder="Enter your company name" required>
+        </div>
+        <div class="form-group">
+          <label for="companyContact">Contact Number</label>
+          <input type="tel" id="companyContact" placeholder="Enter contact number" required>
+        </div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label>Company Logo (Optional)</label>
+          <div class="logo-upload-container" onclick="document.getElementById('logoUpload').click()">
+            <p>📁 Click to upload logo</p>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">Recommended: 150x80px, PNG or JPG</p>
+            <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)">
+            <div class="logo-preview" id="logoPreview">
+              <img id="logoPreviewImg" src="" alt="Logo Preview">
+              <button type="button" class="remove-logo" onclick="removeLogo()">Remove Logo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Document Details</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="docType">Document Type</label>
+          <select id="docType" required>
+            <option value="">Select document type</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Receipt">Receipt</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="currency">Currency</label>
+          <select id="currency" required>
+            <option value="GHS">Ghanaian Cedi (₵)</option>
+            <option value="USD">US Dollar ($)</option>
+            <option value="EUR">Euro (€)</option>
+            <option value="GBP">British Pound (£)</option>
+            <option value="NGN">Nigerian Naira (₦)</option>
+            <option value="ZAR">South African Rand (R)</option>
+            <option value="KES">Kenyan Shilling (KSh)</option>
+            <option value="INR">Indian Rupee (₹)</option>
+            <option value="JPY">Japanese Yen (¥)</option>
+            <option value="AUD">Australian Dollar (A$)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="paymentMethod">Payment Method</label>
+          <select id="paymentMethod" required>
+            <option value="">Select payment method</option>
+            <option value="Mobile Money">Mobile Money</option>
+            <option value="Card">Card</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">Customer Information</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="customerName">Customer Name</label>
+          <input type="text" id="customerName" placeholder="Enter customer name" required>
+        </div>
+        <div class="form-group">
+          <label for="customerContact">Customer Contact</label>
+          <input type="tel" id="customerContact" placeholder="Enter customer contact" required>
+        </div>
+      </div>
+
+      <div class="section-title">Items & Services</div>
+      <div class="items-section">
+        <div id="items-container" class="items-container"></div>
+        <button type="button" class="add-item-btn" onclick="addItem()">+ Add Item</button>
+      </div>
+
+      <div id="total" class="hidden">Total: $0.00</div>
+
+      <button type="submit" class="submit-btn">Download PDF</button>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2025 Invoice & Receipt Generator. All rights reserved © <strong>fervtech</strong></p>
+  <div class="footer-links">
+    <a href="https://fervtech.com" target="_blank">Website</a>
+    <a href="https://twitter.com/fervtech" target="_blank">Twitter</a>
+    <a href="https://github.com/fervtech" target="_blank">GitHub</a>
+    <a href="https://buymeacoffee.com/fervtech" target="_blank">Support</a>
+  </div>
+  <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">Made with ❤️ by fervtech</p>
+</footer>
+
+<script src="js/app.js"></script>
+
+<!-- Paystack (donation only) -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="js/paystack.js"></script>
+
+</body>
+
+</html>
