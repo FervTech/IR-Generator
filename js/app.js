@@ -166,7 +166,7 @@ function generatePDF(e) {
     let html = `
       <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.4; max-width: 750px; padding: 8px; font-size: 12px;">
         <!-- Header - Company Information with Logo -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: -120px 0 10px 0;  border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: 8px 0 10px 0;  border-bottom: 2px solid #333; padding-bottom: 10px;">
           <div style="flex: 1;">
       `;
 
