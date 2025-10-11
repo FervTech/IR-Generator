@@ -265,7 +265,7 @@ function generatePDF(e) {
             <p style="margin: 0; font-weight: bold; color: #333; font-size: 13px;">
               Thank you for choosing ${companyName}!
             </p>
-            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:50em ">
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:10px">
               For any inquiries or support, please contact ${companyContact}
             </p>
           </div>
@@ -275,7 +275,7 @@ function generatePDF(e) {
 
     // PDF options with better margins and scaling
     const opt = {
-      margin: [-10, 10, 5, 10],
+      margin: [0, 10, 10, 10],
       filename: `${docType.toLowerCase()}_${id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
