@@ -284,7 +284,7 @@ function generatePDF(e) {
         logging: false,
         letterRendering: true,
         width: 800,
-        height: 1000,
+        height: 1500,
 
       },
       jsPDF: {
