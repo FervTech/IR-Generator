@@ -166,7 +166,7 @@ function generatePDF(e) {
     let html = `
       <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.4; max-width: 750px; padding: 8px; font-size: 12px;">
         <!-- Header - Company Information with Logo -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: -50px 0 10px 0;  border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: -5px 0 10px 0;  border-bottom: 2px solid #333; padding-bottom: 10px;">
           <div style="flex: 1;">
       `;
 
@@ -275,7 +275,7 @@ function generatePDF(e) {
 
     // PDF options with better margins and scaling
     const opt = {
-      margin: [5, 10, 5, 10],
+      margin: [-5, 10, 5, 10],
       filename: `${docType.toLowerCase()}_${id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
