@@ -275,7 +275,7 @@ function generatePDF(e) {
 
     // PDF options with better margins and scaling
     const opt = {
-      margin: [-5, 10, 5, 10],
+      margin: [5, 10, 5, 10],
       filename: `${docType.toLowerCase()}_${id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
