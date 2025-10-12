@@ -117,6 +117,13 @@ function generatePDF(e) {
       minute: '2-digit'
     });
 
+    // Mobile detection (covers most devices)
+    const isMobile = window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Dynamic settings
+    const pdfWidth = isMobile ? 794 : 800;
+    const headerMargin = isMobile ? '0 0 10px 0' : '-20px 0 10px 0';
+
     // Calculate total
     let pdfTotal = 0;
     const rows = document.querySelectorAll('.item-row');
@@ -155,7 +162,7 @@ function generatePDF(e) {
     if (!hasItems) {
       itemsHTML = `
         <tr>
-          <td colspan="4" style="text-align: center; padding: 0; margin: 0;  color: #666; font-style: italic; border-bottom: 1px solid #eee; font-size: 12px;">
+          <td colspan="4" style="text-align: center; padding: 0; margin: 0; color: #666; font-style: italic; border-bottom: 1px solid #eee; font-size: 12px;">
             No items added
           </td>
         </tr>
@@ -164,9 +171,9 @@ function generatePDF(e) {
 
     // Build complete HTML for PDF with compact styling
     let html = `
-      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.4; max-width: 750px; padding: 8px; font-size: 12px;">
+      <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.4; max-width: ${pdfWidth}px; padding: 8px; font-size: 12px;">
         <!-- Header - Company Information with Logo -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: -20px 0 10px 0;  border-bottom: 2px solid #333; padding-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin: ${headerMargin}; border-bottom: 2px solid #333; padding-bottom: 10px;">
           <div style="flex: 1;">
       `;
 
@@ -265,7 +272,7 @@ function generatePDF(e) {
             <p style="margin: 0; font-weight: bold; color: #333; font-size: 13px;">
               Thank you for choosing ${companyName}!
             </p>
-            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:10px">
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:10px ">
               For any inquiries or support, please contact ${companyContact}
             </p>
           </div>
@@ -273,8 +280,30 @@ function generatePDF(e) {
       </div>
       `;
 
-    // PDF options with better margins and scaling
-    const opt = {
+    // PDF options: Original for PC; tuned for mobile (sharper, no clip)
+    const opt = isMobile ? {
+      margin: [0, 10, 0, 10],
+      filename: `${docType.toLowerCase()}_${id}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 1.2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        letterRendering: true,
+        width: 794,
+        windowWidth: 794,
+        scrollY: 0,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: {
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true,
+        hotfixes: ["px_scaling"]
+      }
+    } : {
       margin: [-220, 10, 10, 10],
       filename: `${docType.toLowerCase()}_${id}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
@@ -284,8 +313,7 @@ function generatePDF(e) {
         logging: false,
         letterRendering: true,
         width: 800,
-        height: 2000,
-
+        height: 2000
       },
       jsPDF: {
         orientation: 'portrait',
@@ -297,7 +325,7 @@ function generatePDF(e) {
     };
 
     // Generate and save PDF
-    console.log('Generating PDF with total items:', rows.length);
+    console.log('Generating PDF with total items:', rows.length, 'Mobile mode:', isMobile ? 'Yes (scale 1.2, width 794px)' : 'No (original scale 2, width 800px)');
     html2pdf().set(opt).from(html).save();
     console.log('PDF generated successfully with all sections');
 
