@@ -47,20 +47,153 @@ function removeItem(id) {
 }
 
 function calculateTotal() {
-  total = 0;
+  let subtotal = 0;
   const rows = document.querySelectorAll('.item-row');
+
   rows.forEach(row => {
     const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
     const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-    total += qty * price;
+    subtotal += qty * price;
   });
+
+  // Calculate tax
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+
+  // Calculate discount
+  const discountInput = parseFloat(document.getElementById('discount').value) || 0;
+  const discountType = document.getElementById('discountType').value;
+  let discountAmount = 0;
+
+  if (discountType === 'percent') {
+    discountAmount = subtotal * (discountInput / 100);
+  } else {
+    discountAmount = discountInput;
+  }
+
+  const total = subtotal + taxAmount - discountAmount;
+
+  // Update display
   const currencySelect = document.getElementById('currency');
-  const currencyCode = currencySelect.value;
   const currencySymbol = currencySelect.options[currencySelect.selectedIndex].text.split('(')[1].replace(')', '');
-  const totalDiv = document.getElementById('total');
-  totalDiv.textContent = `Total: ${currencySymbol}${total.toFixed(2)}`;
-  totalDiv.classList.toggle('hidden', rows.length === 0);
+
+  document.getElementById('subtotalDisplay').textContent = `${currencySymbol}${subtotal.toFixed(2)}`;
+  document.getElementById('taxDisplay').textContent = `${currencySymbol}${taxAmount.toFixed(2)}`;
+  document.getElementById('discountDisplay').textContent = `${currencySymbol}${discountAmount.toFixed(2)}`;
+  document.getElementById('totalDisplay').textContent = `${currencySymbol}${total.toFixed(2)}`;
+
+  // Show/hide tax and discount rows
+  document.getElementById('taxDisplayRow').style.display = taxAmount > 0 ? 'flex' : 'none';
+  document.getElementById('discountDisplayRow').style.display = discountAmount > 0 ? 'flex' : 'none';
+  document.getElementById('total').classList.toggle('hidden', rows.length === 0);
+
+  return { subtotal, taxAmount, discountAmount, total, currencySymbol };
 }
+
+// Preview Functions
+function showPreview() {
+  // Get calculated values
+  const totals = calculateTotal();
+
+  // Get form values
+  const docType = document.getElementById('docType').value;
+  const companyName = document.getElementById('companyName').value;
+  const companyContact = document.getElementById('companyContact').value;
+  const customerName = document.getElementById('customerName').value;
+  const customerContact = document.getElementById('customerContact').value;
+  const paymentMethod = document.getElementById('paymentMethod').value;
+
+  // Generate preview HTML (similar to your PDF generation but for preview)
+  const previewHTML = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;">
+        <div>
+          ${logoDataUrl ? `<img src="${logoDataUrl}" style="max-width: 150px; max-height: 80px; margin-bottom: 10px;" alt="Logo">` : ''}
+          <h3 style="margin: 0;">${companyName}</h3>
+          <p style="margin: 5px 0;">Contact: ${companyContact}</p>
+        </div>
+        <div style="text-align: right;">
+          <h2 style="margin: 0; color: #667eea;">${docType}</h2>
+          <p style="margin: 5px 0;">Date: ${new Date().toLocaleDateString()}</p>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+          <h4 style="margin: 0 0 10px 0;">Bill To:</h4>
+          <p style="margin: 5px 0;"><strong>${customerName}</strong></p>
+          <p style="margin: 5px 0;">Contact: ${customerContact}</p>
+        </div>
+        <div>
+          <h4 style="margin: 0 0 10px 0;">Payment:</h4>
+          <p style="margin: 5px 0;">Method: ${paymentMethod}</p>
+        </div>
+      </div>
+
+      <!-- Items table would go here -->
+      <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px; margin: 20px 0;">
+        <p style="margin: 0;">Preview shows only summary. PDF will include all items.</p>
+      </div>
+
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+        <div style="max-width: 300px; margin-left: auto;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span>Subtotal:</span>
+            <span>${totals.currencySymbol}${totals.subtotal.toFixed(2)}</span>
+          </div>
+          ${totals.taxAmount > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span>Tax:</span>
+              <span>${totals.currencySymbol}${totals.taxAmount.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          ${totals.discountAmount > 0 ? `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+              <span>Discount:</span>
+              <span>-${totals.currencySymbol}${totals.discountAmount.toFixed(2)}</span>
+            </div>
+          ` : ''}
+          <div style="display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 2px solid #333; font-weight: bold;">
+            <span>Total:</span>
+            <span>${totals.currencySymbol}${totals.total.toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+
+
+               <!-- Thank You Message -->
+      <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+         <p style="margin: 0; font-weight: bold; color: #333; font-size: 13px;">
+              Thank you for choosing ${companyName}!
+            </p>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:10px ">
+              For any inquiries or support, please contact ${companyContact}
+            </p>
+      </div>
+
+    </div>
+  `;
+
+  document.getElementById('previewContent').innerHTML = previewHTML;
+  document.getElementById('previewModal').style.display = 'block';
+}
+
+function closePreview() {
+  document.getElementById('previewModal').style.display = 'none';
+}
+
+function generatePDFFromPreview() {
+  closePreview();
+  generatePDF(new Event('submit'));
+}
+
+// Add event listeners for new fields
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners for tax and discount
+  document.getElementById('taxRate').addEventListener('input', calculateTotal);
+  document.getElementById('discount').addEventListener('input', calculateTotal);
+  document.getElementById('discountType').addEventListener('change', calculateTotal);
+});
 
 // Add event listener to currency dropdown to update total display
 document.getElementById('currency').addEventListener('change', calculateTotal);
@@ -158,6 +291,22 @@ function generatePDF(e) {
       }
     });
 
+    // Calculate tax and discount (ADD THIS AFTER itemsHTML is built)
+    const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+    const discountInput = parseFloat(document.getElementById('discount').value) || 0;
+    const discountType = document.getElementById('discountType').value;
+
+    let taxAmount = pdfTotal * (taxRate / 100);
+    let discountAmount = 0;
+
+    if (discountType === 'percent') {
+      discountAmount = pdfTotal * (discountInput / 100);
+    } else {
+      discountAmount = discountInput;
+    }
+
+    const finalTotal = pdfTotal + taxAmount - discountAmount;
+
     // If no valid items, show message
     if (!hasItems) {
       itemsHTML = `
@@ -235,14 +384,24 @@ function generatePDF(e) {
           </table>
         </div>
 
-        <!-- Totals Section -->
+               <!-- Totals Section -->
         <div style="margin-bottom: 15px; text-align: right;">
-          <div style="display: inline-block; text-align: left; min-width: 200px;">
+          <div style="display: inline-block; text-align: left; min-width: 250px;">
             <p style="margin: 5px 0; font-size: 12px; padding: 3px 0;">
               <strong>Subtotal:</strong> <span style="float: right; margin-left: 20px;">${currencySymbol}${pdfTotal.toFixed(2)}</span>
             </p>
+            ${taxAmount > 0 ? `
+            <p style="margin: 5px 0; font-size: 12px; padding: 3px 0;">
+              <strong>Tax (${taxRate}%):</strong> <span style="float: right; margin-left: 20px;">${currencySymbol}${taxAmount.toFixed(2)}</span>
+            </p>
+            ` : ''}
+            ${discountAmount > 0 ? `
+            <p style="margin: 5px 0; font-size: 12px; padding: 3px 0;">
+              <strong>Discount:</strong> <span style="float: right; margin-left: 20px; color: #f44336;">-${currencySymbol}${discountAmount.toFixed(2)}</span>
+            </p>
+            ` : ''}
             <p style="margin: 5px 0; font-size: 13px; font-weight: bold; color: #333; padding: 5px 0; border-top: 1px solid #333;">
-              <strong>Total Due:</strong> <span style="float: right; margin-left: 20px;">${currencySymbol}${pdfTotal.toFixed(2)}</span>
+              <strong>Total Due:</strong> <span style="float: right; margin-left: 20px;">${currencySymbol}${finalTotal.toFixed(2)}</span>
             </p>
           </div>
         </div>
@@ -327,12 +486,56 @@ function generatePDF(e) {
     // Generate and save PDF
     console.log('Generating PDF with total items:', rows.length, 'Mobile mode:', isMobile ? 'Yes (scale 1.2, width 794px)' : 'No (original scale 2, width 800px)');
     html2pdf().set(opt).from(html).save();
-    console.log('PDF generated successfully with all sections');
+    console.log('PDF generated successfully with all sections')
+
+    // Simple Toast Function
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: ${type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#4CAF50'};
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  `;
+
+      // Add animation
+      const style = document.createElement('style');
+      style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  `;
+      document.head.appendChild(style);
+
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+// Use it in your existing functions:
+// In generatePDF() after successful generation:
+// showToast('PDF generated successfully!');
+
+// In showPreview():
+// showToast('Preview opened', 'info');
 
   } catch (error) {
     console.error('PDF generation error:', error);
     alert('Error generating PDF. Please check that all required fields are filled and try again.');
   }
+
+
 }
 
 addItem();
