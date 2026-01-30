@@ -354,7 +354,15 @@ function generatePDF(e) {
             </div>
           </div>
 
-
+          <!-- Receiver Section -->
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #333;"></h3>
+            <div>
+              <p style="margin: 3px 0; font-size: 12px;"></p>
+              <p style="margin: 3px 0; font-size: 12px;"></p>
+            </div>
+          </div>
+        </div>
 
         <!-- Items Table -->
         <div style="margin-bottom: 15px;">
