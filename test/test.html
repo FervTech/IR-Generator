@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice & Receipt Generator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9768490093098454"
+          crossorigin="anonymous"></script>
+</head>
+<body>
+<nav>
+  <div class="nav-left">
+    <div class="logo" onclick="location.reload()">
+      <i class="fas fa-file-invoice"></i> IR Generator
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn">
+      <i class="fas fa-moon"></i> Dark Mode
+    </button>
+    <span style="font-weight: bold;color:white;">
+      Support <i class="fa-solid fa-hand-point-right"></i>
+    </span>
+    <a href="https://buymeacoffee.com/fervtech" target="_blank" class="buy-coffee">
+      <i class="fas fa-coffee"></i> Buy Me Coffee
+    </a>
+    <button id="paystackBtn" class="buy-coffee" style="background:#04AA6D;color:white;">
+      <i class="fas fa-mobile-alt"></i> Mobile Money
+    </button>
+  </div>
+</nav>
+
+<main class="container">
+  <div class="header">
+    <h1><i class="fas fa-file-invoice-dollar"></i> Invoice/Receipt Generator</h1>
+    <p>Create professional invoices and receipts instantly</p>
+  </div>
+
+  <div class="form-card">
+    <form id="invoiceForm" onsubmit="generatePDF(event)">
+      <div class="section-title">
+        <i class="fas fa-building"></i> Company Information
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="companyName">
+            <i class="fas fa-signature"></i> Company Name
+          </label>
+          <input type="text" id="companyName" placeholder="Enter your company name" required>
+        </div>
+        <div class="form-group">
+          <label for="companyContact">
+            <i class="fas fa-phone"></i> Contact Number
+          </label>
+          <input type="tel" id="companyContact" placeholder="Enter contact number" required>
+        </div>
+      </div>
+
+      <div class="form-row full">
+        <div class="form-group">
+          <label><i class="fas fa-image"></i> Company Logo (Optional)</label>
+          <div class="logo-upload-container" onclick="document.getElementById('logoUpload').click()">
+            <p><i class="fas fa-cloud-upload-alt"></i> Click to upload logo</p>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+              <i class="fas fa-info-circle"></i> Recommended: 150x80px, PNG or JPG
+            </p>
+            <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)">
+            <div class="logo-preview" id="logoPreview">
+              <img id="logoPreviewImg" src="" alt="Logo Preview">
+              <button type="button" class="remove-logo" onclick="removeLogo()">
+                <i class="fas fa-times"></i> Remove Logo
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <i class="fas fa-file-alt"></i> Document Details
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="docType">
+            <i class="fas fa-file-invoice"></i> Document Type
+          </label>
+          <select id="docType" required>
+            <option value="">Select document type</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Receipt">Receipt</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="currency">
+            <i class="fas fa-money-bill-wave"></i> Currency
+          </label>
+          <select id="currency" required>
+            <option value="GHS">Ghanaian Cedi (₵)</option>
+            <option value="USD">US Dollar ($)</option>
+            <option value="EUR">Euro (€)</option>
+            <option value="GBP">British Pound (£)</option>
+            <option value="NGN">Nigerian Naira (₦)</option>
+            <option value="ZAR">South African Rand (R)</option>
+            <option value="KES">Kenyan Shilling (KSh)</option>
+            <option value="INR">Indian Rupee (₹)</option>
+            <option value="JPY">Japanese Yen (¥)</option>
+            <option value="AUD">Australian Dollar (A$)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="paymentMethod">
+            <i class="fas fa-credit-card"></i> Payment Method
+          </label>
+          <select id="paymentMethod" required>
+            <option value="">Select payment method</option>
+            <option value="Mobile Money">Mobile Money</option>
+            <option value="Card">Card</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Cash">Cash</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <i class="fas fa-users"></i> Customer Information
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="customerName">
+            <i class="fas fa-user"></i> Customer Name
+          </label>
+          <input type="text" id="customerName" placeholder="Enter customer name" required>
+        </div>
+        <div class="form-group">
+          <label for="customerContact">
+            <i class="fas fa-phone"></i> Customer Contact
+          </label>
+          <input type="tel" id="customerContact" placeholder="Enter customer contact" required>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <i class="fas fa-shopping-cart"></i> Items & Services
+      </div>
+      <div class="items-section">
+        <div id="items-container" class="items-container"></div>
+        <button type="button" class="add-item-btn" onclick="addItem()">
+          <i class="fas fa-plus"></i> Add Item
+        </button>
+      </div>
+
+      <!-- Tax & Discount Section -->
+      <div class="section-title">
+        <i class="fas fa-calculator"></i> Tax & Discount
+      </div>
+      <div class="tax-discount-section">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taxRate">
+              <i class="fas fa-percentage"></i> Tax/VAT/GST Rate (%)
+            </label>
+            <div class="input-with-icon">
+              <input type="number" id="taxRate" placeholder="0" min="0" max="100" step="0.01" onchange="calculateTotal()">
+              <i class="fas fa-percentage input-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="discount">
+              <i class="fas fa-tag"></i> Discount
+            </label>
+            <div class="discount-input-group">
+              <div class="input-with-icon">
+                <input type="number" id="discount" placeholder="0" min="0" step="0.01" onchange="calculateTotal()">
+                <i class="fas fa-tag input-icon"></i>
+              </div>
+              <select id="discountType" onchange="calculateTotal()">
+                <option value="amount">Amount</option>
+                <option value="percent">Percent</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Section -->
+      <div id="total" class="hidden summary-section">
+        <div class="summary-row">
+          <span><i class="fas fa-receipt"></i> Subtotal:</span>
+          <span id="subtotalDisplay">₵0.00</span>
+        </div>
+        <div class="summary-row" id="taxDisplayRow">
+          <span><i class="fas fa-percentage"></i> Tax (0%):</span>
+          <span id="taxDisplay">₵0.00</span>
+        </div>
+        <div class="summary-row" id="discountDisplayRow">
+          <span><i class="fas fa-tag"></i> Discount:</span>
+          <span id="discountDisplay">₵0.00</span>
+        </div>
+        <div class="summary-row total-row">
+          <span><strong><i class="fas fa-file-invoice-dollar"></i> Total:</strong></span>
+          <span id="totalDisplay"><strong>₵0.00</strong></span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button type="button" class="preview-btn" onclick="showPreview()">
+          <i class="fas fa-eye"></i> Preview
+        </button>
+        <button type="submit" class="submit-btn">
+          <i class="fas fa-download"></i> Download PDF
+        </button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><i class="fas fa-eye"></i> Document Preview</h2>
+      <span class="close" onclick="closePreview()">
+        <i class="fas fa-times"></i>
+      </span>
+    </div>
+    <div class="modal-body">
+      <div id="previewContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closePreview()" class="cancel-btn">
+        <i class="fas fa-times"></i> Close
+      </button>
+      <button onclick="generatePDFFromPreview()" class="submit-btn">
+        <i class="fas fa-download"></i> Generate PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><i class="far fa-copyright"></i> 2025 Invoice & Receipt Generator. All rights reserved © <strong>fervtech</strong></p>
+  <div class="footer-links">
+    <a href="https://fervtech.com" target="_blank">
+      <i class="fas fa-globe"></i> Website
+    </a>
+    <a href="https://twitter.com/fervtech" target="_blank">
+      <i class="fab fa-twitter"></i> Twitter
+    </a>
+    <a href="https://github.com/fervtech" target="_blank">
+      <i class="fab fa-github"></i> GitHub
+    </a>
+    <a href="https://buymeacoffee.com/fervtech" target="_blank">
+      <i class="fas fa-coffee"></i> Support
+    </a>
+  </div>
+  <p style="margin-top: 15px; font-size: 12px; opacity: 0.8;">
+    <i class="fas fa-heart" style="color:#ff6b6b;"></i> Made with love by fervtech
+  </p>
+</footer>
+
+<script src="js/app.js"></script>
+<script src="js/paystack.js"></script>
+</body>
+</html>
