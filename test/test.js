@@ -208,7 +208,7 @@ function generatePDFFromPreview() {
 }
 
 function generatePreviewHTML() {
-  const totals = calculateTotal();
+  // Get form values
   const docType = document.getElementById('docType').value;
   const companyName = document.getElementById('companyName').value;
   const companyContact = document.getElementById('companyContact').value;
@@ -222,12 +222,39 @@ function generatePreviewHTML() {
   // Recalculate for preview
   let subtotal = 0;
   const rows = document.querySelectorAll('.item-row');
-  rows.forEach(row => {
-    const qty = parseFloat(row.querySelector('.item-qty')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-    subtotal += qty * price;
+
+  // Build items table HTML for preview
+  let itemsHTML = '';
+  let hasItems = false;
+
+  rows.forEach((row) => {
+    const nameInput = row.querySelector('.item-name');
+    const qtyInput = row.querySelector('.item-qty');
+    const priceInput = row.querySelector('.item-price');
+
+    if (nameInput && qtyInput && priceInput) {
+      const name = nameInput.value;
+      const qty = parseFloat(qtyInput.value) || 0;
+      const price = parseFloat(priceInput.value) || 0;
+      const amount = qty * price;
+
+      if (name && qty > 0 && price >= 0) {
+        hasItems = true;
+        subtotal += amount;
+
+        itemsHTML += `
+          <tr>
+            <td>${name}</td>
+            <td style="text-align: center;">${qty}</td>
+            <td style="text-align: right;">${currencySymbol}${price.toFixed(2)}</td>
+            <td style="text-align: right; font-weight: bold;">${currencySymbol}${amount.toFixed(2)}</td>
+          </tr>
+        `;
+      }
+    }
   });
 
+  // Calculate tax and discount
   const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
@@ -263,8 +290,28 @@ function generatePreviewHTML() {
         <p><i class="fas fa-phone"></i> ${customerContact}</p>
       </div>
 
-      <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px; margin: 20px 0;">
-        <p><i class="fas fa-info-circle"></i> Preview shows only summary. PDF will include all items.</p>
+      <!-- Items Table - ACTUALLY SHOW ITEMS -->
+      <div class="preview-section">
+        <h3><i class="fas fa-shopping-cart"></i> Items & Services</h3>
+        ${hasItems ? `
+          <table class="preview-items-table">
+            <thead>
+              <tr>
+                <th>Item Description</th>
+                <th style="text-align: center;">Quantity</th>
+                <th style="text-align: right;">Unit Price</th>
+                <th style="text-align: right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHTML}
+            </tbody>
+          </table>
+        ` : `
+          <div style="text-align: center; padding: 20px; background: #f5f7fa; border-radius: 8px; margin: 20px 0;">
+            <p><i class="fas fa-info-circle"></i> No items added</p>
+          </div>
+        `}
       </div>
 
       <div class="preview-summary">
@@ -293,11 +340,67 @@ function generatePreviewHTML() {
       </div>
 
       <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-        <p><i class="fas fa-heart" style="color:#667eea;"></i> Thank you for your business!</p>
+
+        <p style="margin: 0; font-weight: bold; color: #333; font-size: 13px;">
+              Thank you for choosing ${companyName}!
+            </p>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 11px;padding-bottom:10px ">
+              For any inquiries or support, please contact ${companyContact}
+            </p>
       </div>
     </div>
   `;
 }
+
+// Reset/Clear Form Function
+function resetForm() {
+  if (!confirm('Are you sure you want to reset the form? All data will be lost.')) {
+    return;
+  }
+
+  // Reset all form fields
+  document.getElementById('invoiceForm').reset();
+
+  // Clear logo
+  logoDataUrl = '';
+  document.getElementById('logoPreview').style.display = 'none';
+  document.getElementById('logoUpload').value = '';
+
+  // Clear all items except the first one
+  const itemsContainer = document.getElementById('items-container');
+  const rows = document.querySelectorAll('.item-row');
+
+  // Remove all items
+  rows.forEach(row => row.remove());
+
+  // Reset item counter
+  itemCounter = 0;
+
+  // Add one empty item back
+  addItem();
+
+  // Reset tax and discount fields
+  document.getElementById('taxRate').value = '';
+  document.getElementById('discount').value = '';
+  document.getElementById('discountType').value = 'amount';
+
+  // Hide summary section
+  document.getElementById('total').classList.add('hidden');
+
+  // Show toast notification
+  showToast('Form reset successfully', 'success');
+
+  // Close preview if open
+  closePreview();
+}
+
+// Also add a key shortcut for reset (Ctrl+R)
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+    e.preventDefault();
+    resetForm();
+  }
+});
 
 function validateForm() {
   const requiredFields = [

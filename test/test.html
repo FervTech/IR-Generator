@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Invoice & Receipt Generator</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="test.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9768490093098454"
@@ -27,8 +28,19 @@
     <a href="https://buymeacoffee.com/fervtech" target="_blank" class="buy-coffee">
       <i class="fas fa-coffee"></i> Buy Me Coffee
     </a>
+    <!-- Donation Amount Input -->
+    <div class="donation-amount" style="display: flex; align-items: center; gap: 8px;">
+      <input type="number" id="donationAmount"
+             placeholder="Amount"
+             min="1"
+             value="1"
+             style="width: 80px; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
+      <span style="color: white; font-weight: bold;">GHC</span>
+    </div>
+
+    <!-- Mobile Money Button -->
     <button id="paystackBtn" class="buy-coffee" style="background:#04AA6D;color:white;">
-      <i class="fas fa-mobile-alt"></i> Mobile Money
+      <i class="fas fa-mobile-alt"></i> Donate
     </button>
   </div>
 </nav>
@@ -210,6 +222,9 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons">
+        <button type="button" class="reset-btn" onclick="resetForm()">
+          <i class="fas fa-redo"></i> Reset
+        </button>
         <button type="button" class="preview-btn" onclick="showPreview()">
           <i class="fas fa-eye"></i> Preview
         </button>
@@ -248,16 +263,15 @@
 </div>
 
 <footer>
-  <p><i class="far fa-copyright"></i> 2025 Invoice & Receipt Generator. All rights reserved © <strong>fervtech</strong></p>
+  <p>
+    <i class="far fa-copyright"></i> 2025 – <span id="currentYear"></span>  All rights reserved <strong>Fervtech</strong>
+  </p>
   <div class="footer-links">
     <a href="https://fervtech.com" target="_blank">
       <i class="fas fa-globe"></i> Website
     </a>
     <a href="https://twitter.com/fervtech" target="_blank">
       <i class="fab fa-twitter"></i> Twitter
-    </a>
-    <a href="https://github.com/fervtech" target="_blank">
-      <i class="fab fa-github"></i> GitHub
     </a>
     <a href="https://buymeacoffee.com/fervtech" target="_blank">
       <i class="fas fa-coffee"></i> Support
@@ -267,8 +281,9 @@
     <i class="fas fa-heart" style="color:#ff6b6b;"></i> Made with love by fervtech
   </p>
 </footer>
-
-<script src="js/app.js"></script>
-<script src="js/paystack.js"></script>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script src="test.js"></script>
+<script src="/js/paystack.js"></script>
+<script src="/js/yr.js"> </script>
 </body>
 </html>

@@ -1031,6 +1031,42 @@ body.dark-mode .input-icon {
   color: #8a9eff;
 }
 
+/* Reset Button Styles */
+.reset-btn {
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  flex: 1;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.reset-btn:hover {
+  background: #d32f2f;
+  transform: translateY(-2px);
+}
+
+/* Update action-buttons to handle 3 buttons */
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .item-row {
