@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analytics | IR Generator</title>
+  <link rel="stylesheet" href="../css/test.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-file-invoice"></i></div>
+      <span class="logo-text">IR Generator</span>
+    </div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="../pages/dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="invoices.html" class="nav-item"><i class="fas fa-file-invoice"></i><span>Invoices</span><span class="badge" id="invoiceCount">0</span></a>
+    <a href="receipts.html" class="nav-item"><i class="fas fa-receipt"></i><span>Receipts</span><span class="badge" id="receiptCount">0</span></a>
+    <a href="clients.html" class="nav-item"><i class="fas fa-users"></i><span>Clients</span></a>
+    <a href="analytics.html" class="nav-item active"><i class="fas fa-chart-line"></i><span>Analytics</span><span class="pro-badge">PRO</span></a>
+    <a href="templates.html" class="nav-item"><i class="fas fa-palette"></i><span>Templates</span><span class="pro-badge">PRO</span></a>
+    <div class="nav-divider"></div>
+
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="plan-card">
+      <div class="plan-icon"><i class="fas fa-gift"></i></div>
+      <div class="plan-info"><strong>Free Plan</strong><p>Limited features</p></div>
+      <a href="../pages/pricing.html" class="btn-upgrade"><i class="fas fa-crown"></i>Upgrade</a>
+    </div>
+  </div>
+</aside>
+
+<div class="dashboard-main">
+  <header class="topbar">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="topbar-search"><i class="fas fa-search"></i><input type="text" placeholder="Search..." id="searchInput"></div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn"><i class="fas fa-moon"></i></button>
+      <button class="notification-btn" onclick="toggleNotifications()"><i class="fas fa-bell"></i><span class="notification-dot"></span></button>
+      <div class="user-menu">
+        <button class="user-menu-btn" onclick="toggleUserMenu()">
+          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <span class="user-name">Demo User</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i>My Profile</a>
+          <a href="settings.html" class="dropdown-item"><i class="fas fa-cog"></i>Settings</a>
+          <div class="dropdown-divider"></div>
+          <button onclick="handleLogout()" class="dropdown-item"><i class="fas fa-sign-out-alt"></i>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <!-- PRO Feature Lock Overlay -->
+    <div class="pro-lock-overlay" id="proLockOverlay">
+      <div class="pro-lock-content">
+        <div class="pro-lock-icon"><i class="fas fa-crown"></i></div>
+        <h2>Analytics is a PRO Feature</h2>
+        <p>Upgrade to unlock detailed analytics, revenue insights, and business intelligence</p>
+        <div class="pro-features-list">
+          <div class="pro-feature-item"><i class="fas fa-check"></i>Revenue trends & forecasting</div>
+          <div class="pro-feature-item"><i class="fas fa-check"></i>Client analytics & insights</div>
+          <div class="pro-feature-item"><i class="fas fa-check"></i>Custom reports & exports</div>
+          <div class="pro-feature-item"><i class="fas fa-check"></i>Real-time dashboard</div>
+        </div>
+        <a href="../pages/pricing.html" class="btn-upgrade-large"><i class="fas fa-crown"></i>Upgrade to PRO</a>
+        <button class="btn-preview" onclick="hideProLock()">Preview Analytics</button>
+      </div>
+    </div>
+
+    <!-- Analytics Content (Blurred when locked) -->
+    <div class="analytics-wrapper" id="analyticsWrapper">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h1 class="page-title"><i class="fas fa-chart-line"></i>Analytics Dashboard</h1>
+          <p class="page-subtitle">Track your business performance and insights</p>
+        </div>
+        <div class="page-actions">
+          <select class="date-range-select">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option selected>Last 6 months</option>
+            <option>Last year</option>
+            <option>All time</option>
+          </select>
+          <button class="btn-secondary" onclick="exportReport()"><i class="fas fa-download"></i>Export Report</button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon blue"><i class="fas fa-dollar-sign"></i></div>
+          <div class="kpi-content">
+            <p class="kpi-label">Total Revenue</p>
+            <h3 class="kpi-value">₵248,350</h3>
+            <p class="kpi-change positive"><i class="fas fa-arrow-up"></i>12.5% vs last period</p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green"><i class="fas fa-file-invoice-dollar"></i></div>
+          <div class="kpi-content">
+            <p class="kpi-label">Avg Invoice Value</p>
+            <h3 class="kpi-value">₵4,140</h3>
+            <p class="kpi-change positive"><i class="fas fa-arrow-up"></i>8.2%</p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon purple"><i class="fas fa-percentage"></i></div>
+          <div class="kpi-content">
+            <p class="kpi-label">Collection Rate</p>
+            <h3 class="kpi-value">94.3%</h3>
+            <p class="kpi-change positive"><i class="fas fa-arrow-up"></i>2.1%</p>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon orange"><i class="fas fa-clock"></i></div>
+          <div class="kpi-content">
+            <p class="kpi-label">Outstanding</p>
+            <h3 class="kpi-value">₵18,500</h3>
+            <p class="kpi-change negative"><i class="fas fa-arrow-down"></i>5.3%</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+        <div class="chart-card large">
+          <div class="chart-header">
+            <h3><i class="fas fa-chart-area"></i>Revenue Trend</h3>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-color revenue"></span>Revenue</span>
+              <span class="legend-item"><span class="legend-color target"></span>Target</span>
+            </div>
+          </div>
+          <canvas id="revenueChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-chart-pie"></i>Invoice Status</h3>
+          </div>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Top Clients Table -->
+      <div class="analytics-table-card">
+        <div class="table-card-header">
+          <h3><i class="fas fa-star"></i>Top Clients</h3>
+          <a href="clients.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <table class="analytics-table">
+          <thead>
+          <tr><th>Client</th><th>Invoices</th><th>Revenue</th><th>Avg Value</th><th>Trend</th></tr>
+          </thead>
+          <tbody>
+          <tr><td><strong>Charlie Brown</strong></td><td>20</td><td>₵95,000</td><td>₵4,750</td><td class="trend-up"><i class="fas fa-arrow-up"></i>15%</td></tr>
+          <tr><td><strong>Bob Johnson</strong></td><td>15</td><td>₵67,500</td><td>₵4,500</td><td class="trend-up"><i class="fas fa-arrow-up"></i>8%</td></tr>
+          <tr><td><strong>John Doe</strong></td><td>12</td><td>₵45,000</td><td>₵3,750</td><td class="trend-down"><i class="fas fa-arrow-down"></i>3%</td></tr>
+          <tr><td><strong>Jane Smith</strong></td><td>8</td><td>₵28,000</td><td>₵3,500</td><td class="trend-up"><i class="fas fa-arrow-up"></i>12%</td></tr>
+          <tr><td><strong>Alice Williams</strong></td><td>5</td><td>₵12,000</td><td>₵2,400</td><td class="trend-neutral"><i class="fas fa-minus"></i>0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="../js/analytics.js"></script>
+</body>
+</html>

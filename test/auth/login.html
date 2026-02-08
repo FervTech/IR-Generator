@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login | IR Generator</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/test/css/auth.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Animated Background -->
+<div class="animated-bg">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="nav-left">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <span class="logo-text">IR Generator</span>
+      </a>
+    </div>
+    <div class="nav-right">
+      <a href="../test.html" class="nav-link">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="/pricing.html" class="nav-link">
+        <i class="fas fa-tags"></i>
+        <span>Pricing</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="auth-page">
+  <div class="auth-container">
+    <!-- Left Side - Branding -->
+    <div class="auth-brand">
+      <div class="brand-content">
+        <div class="brand-icon">
+          <i class="fas fa-file-invoice"></i>
+        </div>
+        <h2>Welcome Back!</h2>
+        <p>Sign in to access your invoices and manage your business documents.</p>
+
+        <div class="brand-features">
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Save unlimited invoices</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Access from anywhere</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Professional templates</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side - Login Form -->
+    <div class="auth-form-container">
+      <div class="auth-form-card">
+        <div class="form-header">
+          <h1>Sign In</h1>
+          <p>Enter your credentials to access your account</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label for="email">
+              <i class="fas fa-envelope"></i>
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              placeholder="you@example.com"
+              required
+              autocomplete="email"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">
+              <i class="fas fa-lock"></i>
+              Password
+            </label>
+            <div class="password-input-group">
+              <input
+                type="password"
+                id="password"
+                class="form-input"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+              >
+              <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" id="rememberMe">
+              <span>Remember me</span>
+            </label>
+            <a href="/forgot-password.html" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Sign In</span>
+            <div class="btn-loader" style="display: none;">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+          </button>
+
+          <div class="divider">
+            <span>OR</span>
+          </div>
+
+          <button type="button" class="btn-social google" onclick="signInWithGoogle()">
+            <i class="fab fa-google"></i>
+            <span>Continue with Google</span>
+          </button>
+
+          <div class="form-footer">
+            <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Demo Credentials (Remove in production) -->
+      <div class="demo-credentials">
+        <p class="demo-title">
+          <i class="fas fa-info-circle"></i>
+          Demo Credentials
+        </p>
+        <div class="demo-accounts">
+          <div class="demo-account" onclick="fillDemoCredentials('free')">
+            <strong>Free Plan:</strong>
+            <span>demo@free.com / password123</span>
+          </div>
+          <div class="demo-account" onclick="fillDemoCredentials('starter')">
+            <strong>Starter Plan:</strong>
+            <span>demo@starter.com / password123</span>
+          </div>
+          <div class="demo-account" onclick="fillDemoCredentials('business')">
+            <strong>Business Plan:</strong>
+            <span>demo@business.com / password123</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="/test/js/auth.js"></script>
+</body>
+</html>

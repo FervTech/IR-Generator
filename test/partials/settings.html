@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings | IR Generator</title>
+  <link rel="stylesheet" href="../css/test.css">
+  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dashboard-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo"><div class="logo-icon"><i class="fas fa-file-invoice"></i></div><span class="logo-text">IR Generator</span></div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="../pages/dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="invoices.html" class="nav-item"><i class="fas fa-file-invoice"></i><span>Invoices</span><span class="badge">0</span></a>
+    <a href="receipts.html" class="nav-item"><i class="fas fa-receipt"></i><span>Receipts</span><span class="badge">0</span></a>
+    <a href="clients.html" class="nav-item"><i class="fas fa-users"></i><span>Clients</span></a>
+    <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Analytics</span><span class="pro-badge">PRO</span></a>
+    <a href="templates.html" class="nav-item"><i class="fas fa-palette"></i><span>Templates</span><span class="pro-badge">PRO</span></a>
+    <div class="nav-divider"></div>
+
+  </nav>
+  <div class="sidebar-footer">
+    <div class="plan-card"><div class="plan-icon"><i class="fas fa-gift"></i></div><div class="plan-info"><strong>Free Plan</strong><p>Basic features</p></div><a href="/pricing.html" class="btn-upgrade"><i class="fas fa-crown"></i>Upgrade</a></div>
+  </div>
+</aside>
+
+<div class="dashboard-main">
+  <header class="topbar">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="topbar-search"><i class="fas fa-search"></i><input type="text" placeholder="Search settings..."></div>
+    <div class="topbar-actions">
+      <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn"><i class="fas fa-moon"></i></button>
+      <button class="notification-btn"><i class="fas fa-bell"></i></button>
+      <div class="user-menu">
+        <button class="user-menu-btn" onclick="toggleUserMenu()"><div class="user-avatar"><i class="fas fa-user"></i></div><span class="user-name">Demo User</span><i class="fas fa-chevron-down"></i></button>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="profile.html" class="dropdown-item"><i class="fas fa-user"></i>My Profile</a>
+          <a href="settings.html" class="dropdown-item"><i class="fas fa-cog"></i>Settings</a>
+          <div class="dropdown-divider"></div>
+          <button onclick="handleLogout()" class="dropdown-item"><i class="fas fa-sign-out-alt"></i>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <div class="page-header">
+      <div class="page-title-group"><h1 class="page-title"><i class="fas fa-cog"></i>Settings</h1><p class="page-subtitle">Manage your application preferences</p></div>
+    </div>
+
+    <div class="settings-layout">
+      <div class="settings-sidebar">
+        <div class="settings-nav">
+          <a href="#general" class="settings-nav-item active" onclick="showSection('general')"><i class="fas fa-globe"></i>General</a>
+          <a href="#invoice" class="settings-nav-item" onclick="showSection('invoice')"><i class="fas fa-file-invoice"></i>Invoice Settings</a>
+          <a href="#email" class="settings-nav-item" onclick="showSection('email')"><i class="fas fa-envelope"></i>Email Settings</a>
+          <a href="#appearance" class="settings-nav-item" onclick="showSection('appearance')"><i class="fas fa-palette"></i>Appearance</a>
+          <a href="#privacy" class="settings-nav-item" onclick="showSection('privacy')"><i class="fas fa-shield-alt"></i>Data & Privacy</a>
+          <a href="#integrations" class="settings-nav-item" onclick="showSection('integrations')"><i class="fas fa-plug"></i>Integrations</a>
+        </div>
+      </div>
+
+      <div class="settings-content">
+        <!-- General Settings -->
+        <div class="settings-section active" id="section-general">
+          <h2><i class="fas fa-globe"></i>General Settings</h2>
+          <div class="settings-card">
+            <div class="setting-item">
+              <label>Language</label>
+              <select class="setting-select"><option>English</option><option>French</option><option>Spanish</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Timezone</label>
+              <select class="setting-select"><option>GMT (UTC+0)</option><option>WAT (UTC+1)</option><option>CAT (UTC+2)</option><option>EAT (UTC+3)</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Date Format</label>
+              <select class="setting-select"><option>MM/DD/YYYY</option><option>DD/MM/YYYY</option><option>YYYY-MM-DD</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Currency</label>
+              <select class="setting-select"><option>GHS - Ghanaian Cedi (₵)</option><option>USD - US Dollar ($)</option><option>EUR - Euro (€)</option><option>GBP - British Pound (£)</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Number Format</label>
+              <select class="setting-select"><option>1,234.56</option><option>1.234,56</option><option>1 234,56</option></select>
+            </div>
+            <button class="btn-save-settings" onclick="saveGeneralSettings()"><i class="fas fa-save"></i>Save Changes</button>
+          </div>
+        </div>
+
+        <!-- Invoice Settings -->
+        <div class="settings-section" id="section-invoice">
+          <h2><i class="fas fa-file-invoice"></i>Invoice Settings</h2>
+          <div class="settings-card">
+            <div class="setting-item">
+              <label>Default Invoice Prefix</label>
+              <input type="text" class="setting-input" value="INV" placeholder="INV">
+            </div>
+            <div class="setting-item">
+              <label>Invoice Number Format</label>
+              <select class="setting-select"><option>INV-2025-001</option><option>2025-001</option><option>001/2025</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Default Payment Terms</label>
+              <select class="setting-select"><option>Net 15</option><option>Net 30</option><option>Net 45</option><option>Net 60</option><option>Due on Receipt</option></select>
+            </div>
+            <div class="setting-item">
+              <label>Default Tax Rate (%)</label>
+              <input type="number" class="setting-input" value="15" step="0.1" min="0" max="100">
+            </div>
+            <div class="setting-item">
+              <label>Invoice Due Days</label>
+              <input type="number" class="setting-input" value="30" min="1" max="365">
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Auto-send invoices</strong><span class="setting-hint">Automatically email invoices to clients</span></div>
+              <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <button class="btn-save-settings" onclick="saveInvoiceSettings()"><i class="fas fa-save"></i>Save Changes</button>
+          </div>
+        </div>
+
+        <!-- Email Settings -->
+        <div class="settings-section" id="section-email">
+          <h2><i class="fas fa-envelope"></i>Email Settings</h2>
+          <div class="settings-card">
+            <div class="setting-toggle">
+              <div><strong>Email Notifications</strong></div>
+              <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Invoice Sent</strong><span class="setting-hint">Notify when invoice is sent</span></div>
+              <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Payment Received</strong><span class="setting-hint">Notify when payment is received</span></div>
+              <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Overdue Reminder</strong><span class="setting-hint">Notify about overdue invoices</span></div>
+              <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-item">
+              <label>Email Signature</label>
+              <textarea class="setting-textarea" rows="4" placeholder="Best regards,
+Your Name
+Your Company"></textarea>
+            </div>
+            <button class="btn-save-settings" onclick="saveEmailSettings()"><i class="fas fa-save"></i>Save Changes</button>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="settings-section" id="section-appearance">
+          <h2><i class="fas fa-palette"></i>Appearance</h2>
+          <div class="settings-card">
+            <div class="setting-item">
+              <label>Theme</label>
+              <div class="theme-options">
+                <button class="theme-option active" onclick="setTheme('light')"><i class="fas fa-sun"></i>Light</button>
+                <button class="theme-option" onclick="setTheme('dark')"><i class="fas fa-moon"></i>Dark</button>
+                <button class="theme-option" onclick="setTheme('auto')"><i class="fas fa-adjust"></i>Auto</button>
+              </div>
+            </div>
+            <div class="setting-item">
+              <label>Primary Color</label>
+              <div class="color-picker-grid">
+                <div class="color-option active" style="background: #6366f1;" onclick="setColor('#6366f1')"></div>
+                <div class="color-option" style="background: #8b5cf6;" onclick="setColor('#8b5cf6')"></div>
+                <div class="color-option" style="background: #ec4899;" onclick="setColor('#ec4899')"></div>
+                <div class="color-option" style="background: #10b981;" onclick="setColor('#10b981')"></div>
+                <div class="color-option" style="background: #f59e0b;" onclick="setColor('#f59e0b')"></div>
+                <div class="color-option" style="background: #ef4444;" onclick="setColor('#ef4444')"></div>
+              </div>
+            </div>
+            <div class="setting-item">
+              <label>Font Size</label>
+              <div class="font-size-options">
+                <button class="font-option" onclick="setFontSize('small')">Small</button>
+                <button class="font-option active" onclick="setFontSize('medium')">Medium</button>
+                <button class="font-option" onclick="setFontSize('large')">Large</button>
+              </div>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Compact Mode</strong><span class="setting-hint">Reduce spacing for more content</span></div>
+              <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <button class="btn-save-settings" onclick="saveAppearance()"><i class="fas fa-save"></i>Save Changes</button>
+          </div>
+        </div>
+
+        <!-- Data & Privacy -->
+        <div class="settings-section" id="section-privacy">
+          <h2><i class="fas fa-shield-alt"></i>Data & Privacy</h2>
+          <div class="settings-card">
+            <div class="data-action">
+              <div><strong>Export All Data</strong><p>Download all your invoices, clients, and settings</p></div>
+              <button class="btn-action-secondary" onclick="exportAllData()"><i class="fas fa-download"></i>Export</button>
+            </div>
+            <div class="data-action">
+              <div><strong>Data Retention</strong><p>Keep deleted items for 30 days before permanent deletion</p></div>
+              <select class="setting-select"><option>30 days</option><option>60 days</option><option>90 days</option><option>Immediate</option></select>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Analytics & Tracking</strong><span class="setting-hint">Help us improve by sharing usage data</span></div>
+              <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="danger-zone">
+              <h3><i class="fas fa-exclamation-triangle"></i>Danger Zone</h3>
+              <div class="data-action">
+                <div><strong>Delete Account</strong><p>Permanently delete your account and all data</p></div>
+                <button class="btn-danger" onclick="deleteAccount()"><i class="fas fa-trash"></i>Delete Account</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations -->
+        <div class="settings-section" id="section-integrations">
+          <h2><i class="fas fa-plug"></i>Integrations</h2>
+          <div class="settings-card">
+            <h3>Payment Gateways</h3>
+            <div class="integration-item">
+              <div class="integration-info">
+                <i class="fab fa-cc-paypal integration-icon"></i>
+                <div><strong>Paystack</strong><p>Accept mobile money and card payments</p></div>
+              </div>
+              <button class="btn-connect"><i class="fas fa-link"></i>Connect</button>
+            </div>
+            <div class="integration-item">
+              <div class="integration-info">
+                <i class="fab fa-stripe integration-icon"></i>
+                <div><strong>Stripe</strong><p>International payment processing</p></div>
+              </div>
+              <button class="btn-connect"><i class="fas fa-link"></i>Connect</button>
+            </div>
+            <h3 style="margin-top: 2rem;">Accounting Software</h3>
+            <div class="integration-item">
+              <div class="integration-info">
+                <i class="fas fa-calculator integration-icon"></i>
+                <div><strong>QuickBooks</strong><p>Sync invoices with QuickBooks</p></div>
+              </div>
+              <button class="btn-connect pro-required"><i class="fas fa-crown"></i>PRO</button>
+            </div>
+            <div class="integration-item">
+              <div class="integration-info">
+                <i class="fas fa-chart-bar integration-icon"></i>
+                <div><strong>Xero</strong><p>Connect with Xero accounting</p></div>
+              </div>
+              <button class="btn-connect pro-required"><i class="fas fa-crown"></i>PRO</button>
+            </div>
+            <h3 style="margin-top: 2rem;">API Keys</h3>
+            <div class="api-key-section">
+              <label>API Key</label>
+              <div class="api-key-display">
+                <input type="password" class="setting-input" value="sk_live_1234567890abcdef" readonly>
+                <button class="btn-copy" onclick="copyApiKey()"><i class="fas fa-copy"></i></button>
+              </div>
+              <button class="btn-regenerate" onclick="regenerateApiKey()"><i class="fas fa-sync"></i>Regenerate Key</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="../js/settings.js"></script>
+</body>
+</html>
