@@ -1,21 +1,6 @@
 // Pricing Page JavaScript
 // =======================
 
-// Dark Mode Toggle
-function toggleDarkMode() {
-  const body = document.body;
-  const themeBtn = document.getElementById('themeBtn');
-
-  body.classList.toggle('dark-mode');
-
-  if (body.classList.contains('dark-mode')) {
-    themeBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
-    localStorage.setItem('darkMode', 'enabled');
-  } else {
-    themeBtn.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
-    localStorage.setItem('darkMode', 'disabled');
-  }
-}
 
 // Billing Toggle (Monthly/Annual)
 function toggleBilling() {
@@ -47,7 +32,7 @@ function upgradePlan(planName) {
 
   // In a real app, this would redirect to payment page
   setTimeout(() => {
-    window.location.href = `../auth/signup.html`;
+    window.location.href = `../../auth/signup.html`;
     console.log(`Upgrading to ${planName} plan`);
   }, 1500);
 }
@@ -55,7 +40,7 @@ function upgradePlan(planName) {
 // Contact Sales Function
 function contactSales() {
   const message = 'Opening contact form...';
-  showToast(message, 'info');
+
 
   // In a real app, this would open contact modal or redirect
   setTimeout(() => {
@@ -64,78 +49,13 @@ function contactSales() {
   }, 1500);
 }
 
-// Toast Notification (Simple version)
-function showToast(message, type = 'info', duration = 3000) {
-  // Check if toast container exists, if not create it
-  let container = document.querySelector('.toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
 
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <i class="fas fa-${getToastIcon(type)}"></i>
-    <span>${message}</span>
-  `;
 
-  container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.animation = 'slideInRight 0.3s ease-out reverse';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
-}
-
-function getToastIcon(type) {
-  const icons = {
-    error: 'exclamation-circle',
-    warning: 'exclamation-triangle',
-    info: 'info-circle',
-    success: 'check-circle'
-  };
-  return icons[type] || 'info-circle';
-}
-
-// Smooth Scroll for Anchor Links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-    }
-  });
-});
 
 // Initialize on Page Load
 document.addEventListener('DOMContentLoaded', function() {
-  // Check for saved dark mode preference
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    const themeBtn = document.getElementById('themeBtn');
-    if (themeBtn) {
-      themeBtn.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
-    }
-  }
 
-  // Set current year in footer
-  const currentYear = new Date().getFullYear();
-  const yearSpan = document.getElementById('currentYear');
-  if (yearSpan) {
-    yearSpan.textContent = currentYear;
-  }
 
-  // Add animation on scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {

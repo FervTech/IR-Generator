@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Templates | IR Generator</title>
-  <link rel="stylesheet" href="../css/test.css">
-  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -22,7 +21,11 @@
 
   <nav class="sidebar-nav">
     <a href="../pages/dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="create-invoice.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Invoice</span></a>
+
     <a href="invoices.html" class="nav-item"><i class="fas fa-file-invoice"></i><span>Invoices</span><span class="badge">0</span></a>
+    <a href="create-receipt.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Receipt</span></a>
+
     <a href="receipts.html" class="nav-item"><i class="fas fa-receipt"></i><span>Receipts</span><span class="badge">0</span></a>
     <a href="clients.html" class="nav-item"><i class="fas fa-users"></i><span>Clients</span></a>
     <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Analytics</span><span class="pro-badge">PRO</span></a>
@@ -46,7 +49,7 @@
     <div class="topbar-search"><i class="fas fa-search"></i><input type="text" placeholder="Search templates..." id="searchInput"></div>
     <div class="topbar-actions">
       <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn"><i class="fas fa-moon"></i></button>
-      <button class="notification-btn"><i class="fas fa-bell"></i></button>
+      <button class="notification-btn" onclick="toggleNotifications()"><i class="fas fa-bell"></i><span class="notification-dot"></span></button>
       <div class="user-menu">
         <button class="user-menu-btn" onclick="toggleUserMenu()">
           <div class="user-avatar"><i class="fas fa-user"></i></div>
@@ -136,6 +139,11 @@
 </div>
 
 <div id="toastContainer" class="toast-container"></div>
+<script src="../js/auth.js"></script>
+
+<script src="../js/utilities/utilities.js"></script>
+<script src="../js/utilities/toast-messages.js"></script>
+<script src="../js/global-settings.js"></script>
 <script src="../js/templates.js"></script>
 </body>
 </html>

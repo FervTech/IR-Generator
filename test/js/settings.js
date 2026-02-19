@@ -1,7 +1,10 @@
-// Settings Page JavaScript
+// Settings Page JavaScript with GlobalSettings Integration
+// ========================================================
+
 let settings = JSON.parse(localStorage.getItem('appSettings')) || {
   general: { language: 'English', timezone: 'GMT (UTC+0)', dateFormat: 'MM/DD/YYYY', currency: 'GHS', numberFormat: '1,234.56' },
   invoice: { prefix: 'INV', numberFormat: 'INV-2025-001', paymentTerms: 'Net 30', taxRate: 15, dueDays: 30, autoSend: false },
+  receipt: { prefix: 'REC', numberFormat: 'REC-2025-001', footerNote: 'Payment received with thanks!', printCopies: 1, showPaymentMethod: true, showTax: true, autoNumber: true, autoSend: false },
   email: { notifications: true, invoiceSent: true, paymentReceived: true, overdueReminder: false, signature: '' },
   appearance: { theme: 'light', primaryColor: '#6366f1', fontSize: 'medium', compactMode: false },
   privacy: { dataRetention: '30 days', analytics: true }
@@ -10,10 +13,58 @@ let settings = JSON.parse(localStorage.getItem('appSettings')) || {
 document.addEventListener('DOMContentLoaded', () => {
   setupDarkMode();
   loadSettings();
+
+  // Sync with GlobalSettings if available
+  if (window.GlobalSettings) {
+    settings = window.GlobalSettings.settings;
+    loadSettings(); // Reload with synced settings
+  }
 });
 
 function loadSettings() {
-  // Settings already loaded from localStorage on init
+  // Load Invoice Settings
+  const invoicePrefix = document.getElementById('invoicePrefix');
+  if (invoicePrefix && settings.invoice) invoicePrefix.value = settings.invoice.prefix || 'INV';
+
+  const invoiceNumberFormat = document.getElementById('invoiceNumberFormat');
+  if (invoiceNumberFormat && settings.invoice) invoiceNumberFormat.value = settings.invoice.numberFormat || 'INV-2025-001';
+
+  const invoicePaymentTerms = document.getElementById('invoicePaymentTerms');
+  if (invoicePaymentTerms && settings.invoice) invoicePaymentTerms.value = settings.invoice.paymentTerms || 'Net 30';
+
+  const invoiceTaxRate = document.getElementById('invoiceTaxRate');
+  if (invoiceTaxRate && settings.invoice) invoiceTaxRate.value = settings.invoice.taxRate || 15;
+
+  const invoiceDueDays = document.getElementById('invoiceDueDays');
+  if (invoiceDueDays && settings.invoice) invoiceDueDays.value = settings.invoice.dueDays || 30;
+
+  const invoiceAutoSend = document.getElementById('invoiceAutoSend');
+  if (invoiceAutoSend && settings.invoice) invoiceAutoSend.checked = settings.invoice.autoSend === true;
+
+  // Load Receipt Settings
+  const receiptPrefix = document.getElementById('receiptPrefix');
+  if (receiptPrefix && settings.receipt) receiptPrefix.value = settings.receipt.prefix || 'REC';
+
+  const receiptNumberFormat = document.getElementById('receiptNumberFormat');
+  if (receiptNumberFormat && settings.receipt) receiptNumberFormat.value = settings.receipt.numberFormat || 'REC-2025-001';
+
+  const receiptFooterNote = document.getElementById('receiptFooterNote');
+  if (receiptFooterNote && settings.receipt) receiptFooterNote.value = settings.receipt.footerNote || 'Payment received with thanks!';
+
+  const receiptPrintCopies = document.getElementById('receiptPrintCopies');
+  if (receiptPrintCopies && settings.receipt) receiptPrintCopies.value = settings.receipt.printCopies || 1;
+
+  const receiptShowPaymentMethod = document.getElementById('receiptShowPaymentMethod');
+  if (receiptShowPaymentMethod && settings.receipt) receiptShowPaymentMethod.checked = settings.receipt.showPaymentMethod !== false;
+
+  const receiptShowTax = document.getElementById('receiptShowTax');
+  if (receiptShowTax && settings.receipt) receiptShowTax.checked = settings.receipt.showTax !== false;
+
+  const receiptAutoNumber = document.getElementById('receiptAutoNumber');
+  if (receiptAutoNumber && settings.receipt) receiptAutoNumber.checked = settings.receipt.autoNumber !== false;
+
+  const receiptAutoSend = document.getElementById('receiptAutoSend');
+  if (receiptAutoSend && settings.receipt) receiptAutoSend.checked = settings.receipt.autoSend === true;
 }
 
 function showSection(section) {
@@ -24,23 +75,119 @@ function showSection(section) {
 }
 
 function saveGeneralSettings() {
-  showToast('General settings saved!', 'success');
+  // Collect general settings
+  const generalSettings = {
+    language: document.querySelector('#section-general select.setting-select')?.value || 'English',
+    timezone: document.querySelectorAll('#section-general select.setting-select')[1]?.value || 'GMT (UTC+0)',
+    dateFormat: document.querySelectorAll('#section-general select.setting-select')[2]?.value || 'MM/DD/YYYY',
+    currency: document.querySelectorAll('#section-general select.setting-select')[3]?.value || 'GHS',
+    numberFormat: document.querySelectorAll('#section-general select.setting-select')[4]?.value || '1,234.56'
+  };
+
+  // Update local settings
+  settings.general = generalSettings;
+
+  // Update GlobalSettings if available
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('general', generalSettings);
+  }
+
+  // Save to localStorage
   localStorage.setItem('appSettings', JSON.stringify(settings));
+
+  showToast('General settings saved and applied!', 'success');
 }
 
 function saveInvoiceSettings() {
-  showToast('Invoice settings saved!', 'success');
+  if (!settings.invoice) settings.invoice = {};
+
+  // Collect invoice settings
+  const invoicePrefix = document.getElementById('invoicePrefix');
+  if (invoicePrefix) settings.invoice.prefix = invoicePrefix.value;
+
+  const invoiceNumberFormat = document.getElementById('invoiceNumberFormat');
+  if (invoiceNumberFormat) settings.invoice.numberFormat = invoiceNumberFormat.value;
+
+  const invoicePaymentTerms = document.getElementById('invoicePaymentTerms');
+  if (invoicePaymentTerms) settings.invoice.paymentTerms = invoicePaymentTerms.value;
+
+  const invoiceTaxRate = document.getElementById('invoiceTaxRate');
+  if (invoiceTaxRate) settings.invoice.taxRate = parseFloat(invoiceTaxRate.value);
+
+  const invoiceDueDays = document.getElementById('invoiceDueDays');
+  if (invoiceDueDays) settings.invoice.dueDays = parseInt(invoiceDueDays.value);
+
+  const invoiceAutoSend = document.getElementById('invoiceAutoSend');
+  if (invoiceAutoSend) settings.invoice.autoSend = invoiceAutoSend.checked;
+
+  // Update GlobalSettings if available
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('invoice', settings.invoice);
+  }
+
+  // Save to localStorage
   localStorage.setItem('appSettings', JSON.stringify(settings));
+
+  showToast('Invoice settings saved and applied!', 'success');
+}
+
+function saveReceiptSettings() {
+  if (!settings.receipt) settings.receipt = {};
+
+  // Collect receipt settings
+  const receiptPrefix = document.getElementById('receiptPrefix');
+  if (receiptPrefix) settings.receipt.prefix = receiptPrefix.value;
+
+  const receiptNumberFormat = document.getElementById('receiptNumberFormat');
+  if (receiptNumberFormat) settings.receipt.numberFormat = receiptNumberFormat.value;
+
+  const receiptFooterNote = document.getElementById('receiptFooterNote');
+  if (receiptFooterNote) settings.receipt.footerNote = receiptFooterNote.value;
+
+  const receiptPrintCopies = document.getElementById('receiptPrintCopies');
+  if (receiptPrintCopies) settings.receipt.printCopies = parseInt(receiptPrintCopies.value);
+
+  const receiptShowPaymentMethod = document.getElementById('receiptShowPaymentMethod');
+  if (receiptShowPaymentMethod) settings.receipt.showPaymentMethod = receiptShowPaymentMethod.checked;
+
+  const receiptShowTax = document.getElementById('receiptShowTax');
+  if (receiptShowTax) settings.receipt.showTax = receiptShowTax.checked;
+
+  const receiptAutoNumber = document.getElementById('receiptAutoNumber');
+  if (receiptAutoNumber) settings.receipt.autoNumber = receiptAutoNumber.checked;
+
+  const receiptAutoSend = document.getElementById('receiptAutoSend');
+  if (receiptAutoSend) settings.receipt.autoSend = receiptAutoSend.checked;
+
+  // Update GlobalSettings if available
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('receipt', settings.receipt);
+  }
+
+  // Save to localStorage
+  localStorage.setItem('appSettings', JSON.stringify(settings));
+
+  showToast('Receipt settings saved and applied!', 'success');
 }
 
 function saveEmailSettings() {
-  showToast('Email settings saved!', 'success');
+  // Update GlobalSettings if available
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('email', settings.email);
+  }
+
   localStorage.setItem('appSettings', JSON.stringify(settings));
+  showToast('Email settings saved!', 'success');
 }
 
 function saveAppearance() {
-  showToast('Appearance settings saved!', 'success');
+  // Update GlobalSettings if available
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('appearance', settings.appearance);
+  }
+
   localStorage.setItem('appSettings', JSON.stringify(settings));
+  showToast('Appearance settings saved!', 'success');
 }
 
 function setTheme(theme) {
@@ -57,6 +204,13 @@ function setTheme(theme) {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.body.classList.toggle('dark-mode', prefersDark);
   }
+
+  // Update settings
+  settings.appearance.theme = theme;
+  if (window.GlobalSettings) {
+    window.GlobalSettings.set('appearance', 'theme', theme);
+  }
+
   showToast('Theme updated', 'success');
 }
 
@@ -64,6 +218,13 @@ function setColor(color) {
   document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
   event.target.classList.add('active');
   document.documentElement.style.setProperty('--primary', color);
+
+  // Update settings
+  settings.appearance.primaryColor = color;
+  if (window.GlobalSettings) {
+    window.GlobalSettings.set('appearance', 'primaryColor', color);
+  }
+
   showToast('Color scheme updated', 'success');
 }
 
@@ -73,14 +234,44 @@ function setFontSize(size) {
 
   const sizes = { small: '14px', medium: '16px', large: '18px' };
   document.documentElement.style.fontSize = sizes[size];
+
+  // Update settings
+  settings.appearance.fontSize = size;
+  if (window.GlobalSettings) {
+    window.GlobalSettings.set('appearance', 'fontSize', size);
+  }
+
   showToast('Font size updated', 'success');
 }
 
 function exportAllData() {
   showToast('Preparing data export...', 'info');
-  setTimeout(() => {
-    showToast('Data exported successfully!', 'success');
-  }, 2000);
+
+  // Use ExportManager if available
+  if (window.ExportManager) {
+    window.ExportManager.exportAllData();
+  } else {
+    // Fallback: Basic export
+    setTimeout(() => {
+      const exportData = {
+        settings: settings,
+        invoices: JSON.parse(localStorage.getItem('invoices') || '[]'),
+        receipts: JSON.parse(localStorage.getItem('receipts') || '[]'),
+        clients: JSON.parse(localStorage.getItem('clients') || '[]'),
+        exportDate: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ir-generator-backup-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showToast('Data exported successfully!', 'success');
+    }, 1000);
+  }
 }
 
 function deleteAccount() {
@@ -115,45 +306,12 @@ function toggleSidebar() {
   document.querySelector('.dashboard-main')?.classList.toggle('full-width');
 }
 
-function toggleUserMenu() { document.getElementById('userDropdown')?.classList.toggle('show'); }
-
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  const isDark = document.body.classList.contains('dark-mode');
-  btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-  localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+function toggleUserMenu() {
+  document.getElementById('userDropdown')?.classList.toggle('show');
 }
 
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i>';
-  }
-}
 
-function handleLogout() {
-  if (confirm('Sign out?')) {
-    localStorage.removeItem('currentUser');
-    window.location.href = '/login.html';
-  }
-}
 
-function showToast(msg, type = 'info') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
 
 // Add settings-specific styles
 const style = document.createElement('style');

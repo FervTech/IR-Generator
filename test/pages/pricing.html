@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pricing Plans | IR Generator - Choose Your Plan</title>
-  <link rel="stylesheet" href="../css/test.css">
+  <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="../css/pricing.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,29 +26,29 @@
 <nav class="navbar">
   <div class="nav-container">
     <div class="nav-left">
-      <a href="/" class="logo">
+      <div class="logo" onclick="location.href='../index.html'">
         <div class="logo-icon">
           <i class="fas fa-file-invoice"></i>
         </div>
         <span class="logo-text">IR Generator</span>
-      </a>
+      </div>
     </div>
     <div class="nav-right">
-      <a href="../test.html" class="nav-link">
-        <i class="fas fa-home"></i>
-        <span>Generator</span>
-      </a>
+
       <a href="pricing.html" class="nav-link active">
         <i class="fas fa-tags"></i>
         <span>Pricing</span>
       </a>
       <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn">
         <i class="fas fa-moon"></i>
-        <span>Dark Mode</span>
       </button>
-      <a href="https://buymeacoffee.com/fervtech" target="_blank" class="btn-coffee">
-        <i class="fas fa-coffee"></i>
-        <span>Support Us</span>
+
+
+      <a href="../auth/login.html" class="nav-link" >
+        <span>Login</span>
+      </a>
+      <a href="../auth/signup.html" class="btn-coffee" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+        <span>Get Started Free</span>
       </a>
     </div>
   </div>
@@ -679,6 +679,10 @@
       </p>
     </div>
   </div>
+  <button id="backToTop">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
 </main>
 
 <!-- Footer -->
@@ -692,11 +696,8 @@
       <p class="footer-tagline">Professional documents made simple</p>
     </div>
     <div class="footer-links">
-      <a href="/" class="footer-link">
-        <i class="fas fa-home"></i>
-        Generator
-      </a>
-      <a href="/pricing.html" class="footer-link">
+
+      <a href="pricing.html" class="footer-link">
         <i class="fas fa-tags"></i>
         Pricing
       </a>
@@ -704,14 +705,8 @@
         <i class="fas fa-globe"></i>
         Website
       </a>
-      <a href="https://twitter.com/fervtech" target="_blank" class="footer-link">
-        <i class="fab fa-twitter"></i>
-        Twitter
-      </a>
-      <a href="https://buymeacoffee.com/fervtech" target="_blank" class="footer-link">
-        <i class="fas fa-coffee"></i>
-        Support
-      </a>
+
+
     </div>
   </div>
   <div class="footer-bottom">
@@ -720,14 +715,12 @@
       2025 – <span id="currentYear"></span> All rights reserved
       <strong>Fervtech</strong>
     </p>
-    <p class="footer-love">
-      <i class="fas fa-heart"></i>
-      Made with love by fervtech
-    </p>
+
   </div>
 </footer>
 
-<script src="/test/js/pricing.js"></script>
+<script src="/test/js/pages/pricing.js"></script>
+<script src="/test/js/utilities/utilities.js"></script>
 <script src="/js/yr.js"></script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WPWP9J46E1"></script>

@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Settings | IR Generator</title>
-  <link rel="stylesheet" href="../css/test.css">
-  <link rel="stylesheet" href="../css/dashboard.css">
+  <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -18,13 +17,18 @@
   </div>
   <nav class="sidebar-nav">
     <a href="../pages/dashboard.html" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="create-invoice.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Invoice</span></a>
+
     <a href="invoices.html" class="nav-item"><i class="fas fa-file-invoice"></i><span>Invoices</span><span class="badge">0</span></a>
+    <a href="create-receipt.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Receipt</span></a>
+
     <a href="receipts.html" class="nav-item"><i class="fas fa-receipt"></i><span>Receipts</span><span class="badge">0</span></a>
     <a href="clients.html" class="nav-item"><i class="fas fa-users"></i><span>Clients</span></a>
     <a href="analytics.html" class="nav-item"><i class="fas fa-chart-line"></i><span>Analytics</span><span class="pro-badge">PRO</span></a>
     <a href="templates.html" class="nav-item"><i class="fas fa-palette"></i><span>Templates</span><span class="pro-badge">PRO</span></a>
     <div class="nav-divider"></div>
-
+    <a href="settings.html" class="nav-item active"><i class="fas fa-cog"></i><span>Settings</span></a>
+    <a href="profile.html" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
   </nav>
   <div class="sidebar-footer">
     <div class="plan-card"><div class="plan-icon"><i class="fas fa-gift"></i></div><div class="plan-info"><strong>Free Plan</strong><p>Basic features</p></div><a href="/pricing.html" class="btn-upgrade"><i class="fas fa-crown"></i>Upgrade</a></div>
@@ -60,6 +64,7 @@
         <div class="settings-nav">
           <a href="#general" class="settings-nav-item active" onclick="showSection('general')"><i class="fas fa-globe"></i>General</a>
           <a href="#invoice" class="settings-nav-item" onclick="showSection('invoice')"><i class="fas fa-file-invoice"></i>Invoice Settings</a>
+          <a href="#receipt" class="settings-nav-item" onclick="showSection('receipt')"><i class="fas fa-receipt"></i>Receipt Settings</a>
           <a href="#email" class="settings-nav-item" onclick="showSection('email')"><i class="fas fa-envelope"></i>Email Settings</a>
           <a href="#appearance" class="settings-nav-item" onclick="showSection('appearance')"><i class="fas fa-palette"></i>Appearance</a>
           <a href="#privacy" class="settings-nav-item" onclick="showSection('privacy')"><i class="fas fa-shield-alt"></i>Data & Privacy</a>
@@ -102,29 +107,77 @@
           <div class="settings-card">
             <div class="setting-item">
               <label>Default Invoice Prefix</label>
-              <input type="text" class="setting-input" value="INV" placeholder="INV">
+              <input type="text" class="setting-input" id="invoicePrefix" value="INV" placeholder="INV">
             </div>
             <div class="setting-item">
               <label>Invoice Number Format</label>
-              <select class="setting-select"><option>INV-2025-001</option><option>2025-001</option><option>001/2025</option></select>
+              <select class="setting-select" id="invoiceNumberFormat"><option>INV-2025-001</option><option>2025-001</option><option>001/2025</option></select>
             </div>
             <div class="setting-item">
               <label>Default Payment Terms</label>
-              <select class="setting-select"><option>Net 15</option><option>Net 30</option><option>Net 45</option><option>Net 60</option><option>Due on Receipt</option></select>
+              <select class="setting-select" id="invoicePaymentTerms"><option>Net 15</option><option>Net 30</option><option>Net 45</option><option>Net 60</option><option>Due on Receipt</option></select>
             </div>
             <div class="setting-item">
               <label>Default Tax Rate (%)</label>
-              <input type="number" class="setting-input" value="15" step="0.1" min="0" max="100">
+              <input type="number" class="setting-input" id="invoiceTaxRate" value="15" step="0.1" min="0" max="100">
             </div>
             <div class="setting-item">
               <label>Invoice Due Days</label>
-              <input type="number" class="setting-input" value="30" min="1" max="365">
+              <input type="number" class="setting-input" id="invoiceDueDays" value="30" min="1" max="365">
             </div>
             <div class="setting-toggle">
               <div><strong>Auto-send invoices</strong><span class="setting-hint">Automatically email invoices to clients</span></div>
-              <label class="toggle-switch"><input type="checkbox"><span class="toggle-slider"></span></label>
+              <label class="toggle-switch"><input type="checkbox" id="invoiceAutoSend"><span class="toggle-slider"></span></label>
             </div>
             <button class="btn-save-settings" onclick="saveInvoiceSettings()"><i class="fas fa-save"></i>Save Changes</button>
+          </div>
+        </div>
+
+        <!-- Receipt Settings -->
+        <div class="settings-section" id="section-receipt">
+          <h2><i class="fas fa-receipt"></i>Receipt Settings</h2>
+          <div class="settings-card">
+            <div class="setting-item">
+              <label>Default Receipt Prefix</label>
+              <input type="text" class="setting-input" id="receiptPrefix" value="REC" placeholder="REC">
+            </div>
+            <div class="setting-item">
+              <label>Receipt Number Format</label>
+              <select class="setting-select" id="receiptNumberFormat">
+                <option>REC-2025-001</option>
+                <option>2025-001</option>
+                <option>001/2025</option>
+              </select>
+            </div>
+            <div class="setting-item">
+              <label>Default Receipt Footer Note</label>
+              <textarea class="setting-textarea" rows="2" id="receiptFooterNote" placeholder="Payment received with thanks!">Payment received with thanks!</textarea>
+            </div>
+            <div class="setting-item">
+              <label>Print Copies</label>
+              <select class="setting-select" id="receiptPrintCopies">
+                <option value="1">1 Copy</option>
+                <option value="2">2 Copies</option>
+                <option value="3">3 Copies</option>
+              </select>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Show Payment Method</strong><span class="setting-hint">Display payment method on receipts</span></div>
+              <label class="toggle-switch"><input type="checkbox" id="receiptShowPaymentMethod" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Show Tax Breakdown</strong><span class="setting-hint">Display tax details on receipts</span></div>
+              <label class="toggle-switch"><input type="checkbox" id="receiptShowTax" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Auto-generate Receipt Number</strong><span class="setting-hint">Automatically generate sequential numbers</span></div>
+              <label class="toggle-switch"><input type="checkbox" id="receiptAutoNumber" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-toggle">
+              <div><strong>Auto-send receipts</strong><span class="setting-hint">Automatically email receipts to customers</span></div>
+              <label class="toggle-switch"><input type="checkbox" id="receiptAutoSend"><span class="toggle-slider"></span></label>
+            </div>
+            <button class="btn-save-settings" onclick="saveReceiptSettings()"><i class="fas fa-save"></i>Save Changes</button>
           </div>
         </div>
 
@@ -274,6 +327,10 @@ Your Company"></textarea>
 </div>
 
 <div id="toastContainer" class="toast-container"></div>
+<script src="../js/auth.js"></script>
+<script src="../js/global-settings.js"></script>
+<script src="../js/utilities/toast-messages.js"></script>
+<script src="../js/utilities/utilities.js"></script>
 <script src="../js/settings.js"></script>
 </body>
 </html>

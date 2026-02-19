@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy | IR Generator</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/pages/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .legal-page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      background: var(--bg-primary);
+      min-height: 100vh;
+    }
+
+    .legal-header {
+      text-align: center;
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .legal-header h1 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .legal-header .last-updated {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .legal-content {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      line-height: 1.8;
+    }
+
+    .legal-content h2 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-top: 2.5rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .legal-content h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .legal-content p {
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .legal-content ul, .legal-content ol {
+      margin-left: 2rem;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .legal-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .legal-content strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .legal-content a {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    .legal-content a:hover {
+      color: var(--secondary);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      transition: all 0.3s;
+    }
+
+    .back-link:hover {
+      transform: translateX(-5px);
+      color: var(--secondary);
+    }
+
+    .highlight-box {
+      background: rgba(99, 102, 241, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+    }
+
+    .info-box {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 4px solid var(--success);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+    }
+
+    .warning-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--warning);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 8px;
+    }
+
+    .contact-box {
+      background: var(--bg-tertiary);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .contact-box h3 {
+      margin-top: 0;
+      color: var(--primary);
+    }
+
+    .contact-box a {
+      color: var(--primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .contact-box a:hover {
+      text-decoration: underline;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .data-table th {
+      background: var(--bg-tertiary);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+      .legal-page {
+        padding: 2rem 1rem;
+      }
+
+      .legal-content {
+        padding: 1.5rem;
+      }
+
+      .legal-header h1 {
+        font-size: 2rem;
+      }
+
+      .legal-content h2 {
+        font-size: 1.5rem;
+      }
+
+      .data-table {
+        font-size: 0.9rem;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="legal-page">
+  <a href="/" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    Back to Home
+  </a>
+
+  <div class="legal-header">
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last Updated: February 9, 2025</p>
+  </div>
+
+  <div class="legal-content">
+    <div class="highlight-box">
+      <p><strong>Your Privacy Matters:</strong> At IR Generator, we are committed to protecting your privacy and ensuring the security of your personal and business data. This Privacy Policy explains how we collect, use, store, and protect your information.</p>
+    </div>
+
+    <h2>1. Introduction</h2>
+    <p>IR Generator ("we", "us", "our") is operated by Fervtech. This Privacy Policy applies to all users of our invoice and receipt generation platform available at irgenerator.com and through our mobile applications.</p>
+
+    <p>By using IR Generator, you consent to the data practices described in this policy. If you do not agree with this Privacy Policy, please do not use our Service.</p>
+
+    <h2>2. Information We Collect</h2>
+
+    <h3>2.1 Information You Provide Directly</h3>
+    <p>When you use IR Generator, you may provide us with:</p>
+
+    <table class="data-table">
+      <thead>
+      <tr>
+        <th>Category</th>
+        <th>Data Collected</th>
+        <th>Purpose</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><strong>Account Information</strong></td>
+        <td>Name, email address, password, company name, phone number</td>
+        <td>Account creation, authentication, communication</td>
+      </tr>
+      <tr>
+        <td><strong>Business Data</strong></td>
+        <td>Company details, logo, address, tax information</td>
+        <td>Invoice/receipt generation, customization</td>
+      </tr>
+      <tr>
+        <td><strong>Client Information</strong></td>
+        <td>Client names, contact details, addresses</td>
+        <td>Client management, document generation</td>
+      </tr>
+      <tr>
+        <td><strong>Transaction Data</strong></td>
+        <td>Invoice details, amounts, payment methods, dates</td>
+        <td>Document creation, record keeping</td>
+      </tr>
+      <tr>
+        <td><strong>Payment Information</strong></td>
+        <td>Billing address, payment method details</td>
+        <td>Subscription processing (via third-party processors)</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 Information We Collect Automatically</h3>
+    <p>When you use IR Generator, we automatically collect:</p>
+    <ul>
+      <li><strong>Usage Data:</strong> Pages visited, features used, time spent, click patterns</li>
+      <li><strong>Device Information:</strong> IP address, browser type, device type, operating system</li>
+      <li><strong>Location Data:</strong> General geographic location based on IP address</li>
+      <li><strong>Cookies and Similar Technologies:</strong> Session identifiers, preferences, analytics data</li>
+    </ul>
+
+    <h3>2.3 Information from Third Parties</h3>
+    <p>We may receive information from:</p>
+    <ul>
+      <li><strong>Authentication Providers:</strong> Google OAuth (name, email, profile picture)</li>
+      <li><strong>Payment Processors:</strong> Paystack, Stripe (transaction status, payment confirmations)</li>
+      <li><strong>Analytics Services:</strong> Google Analytics (aggregated usage patterns)</li>
+    </ul>
+
+    <h2>3. How We Use Your Information</h2>
+
+    <div class="info-box">
+      <p><strong>Core Principle:</strong> We use your information solely to provide, improve, and protect our Service. We do not sell your personal data to third parties.</p>
+    </div>
+
+    <h3>3.1 Service Delivery</h3>
+    <ul>
+      <li>Create and manage your account</li>
+      <li>Generate invoices and receipts with your business information</li>
+      <li>Store and organize your business data</li>
+      <li>Process payments and manage subscriptions</li>
+      <li>Provide customer support</li>
+    </ul>
+
+    <h3>3.2 Service Improvement</h3>
+    <ul>
+      <li>Analyze usage patterns to improve features</li>
+      <li>Develop new functionality based on user needs</li>
+      <li>Fix bugs and technical issues</li>
+      <li>Optimize performance and user experience</li>
+    </ul>
+
+    <h3>3.3 Communication</h3>
+    <ul>
+      <li>Send account notifications and service updates</li>
+      <li>Respond to support requests</li>
+      <li>Send important security alerts</li>
+      <li>Share product updates and new features (with opt-out option)</li>
+    </ul>
+
+    <h3>3.4 Security and Compliance</h3>
+    <ul>
+      <li>Prevent fraud and unauthorized access</li>
+      <li>Enforce our Terms of Service</li>
+      <li>Comply with legal obligations</li>
+      <li>Protect our rights and the rights of others</li>
+    </ul>
+
+    <h2>4. Data Sharing and Disclosure</h2>
+
+    <h3>4.1 We DO NOT Sell Your Data</h3>
+    <p>We do not sell, rent, or trade your personal information or business data to third parties for marketing purposes.</p>
+
+    <h3>4.2 Service Providers</h3>
+    <p>We share data with trusted third-party service providers who help us operate our Service:</p>
+    <ul>
+      <li><strong>Cloud Hosting:</strong> AWS, Google Cloud (data storage and infrastructure)</li>
+      <li><strong>Payment Processing:</strong> Paystack, Stripe (payment transactions)</li>
+      <li><strong>Email Services:</strong> SendGrid, Mailgun (transactional emails)</li>
+      <li><strong>Analytics:</strong> Google Analytics (usage statistics - anonymized)</li>
+    </ul>
+    <p>All service providers are contractually obligated to protect your data and use it only for specified purposes.</p>
+
+    <h3>4.3 Legal Requirements</h3>
+    <p>We may disclose your information if required by law or in response to:</p>
+    <ul>
+      <li>Valid legal processes (subpoenas, court orders)</li>
+      <li>Government requests</li>
+      <li>Protection of our rights or the rights of others</li>
+      <li>Investigation of fraud or security issues</li>
+    </ul>
+
+    <h3>4.4 Business Transfers</h3>
+    <p>In the event of a merger, acquisition, or sale of assets, your data may be transferred to the acquiring entity. We will notify you of any such change.</p>
+
+    <h2>5. Data Security</h2>
+
+    <div class="info-box">
+      <p><strong>Security Commitment:</strong> We implement industry-standard security measures to protect your data from unauthorized access, alteration, disclosure, or destruction.</p>
+    </div>
+
+    <h3>5.1 Security Measures</h3>
+    <ul>
+      <li><strong>Encryption:</strong> All data transmitted is encrypted using SSL/TLS</li>
+      <li><strong>Secure Storage:</strong> Data at rest is encrypted in secure cloud servers</li>
+      <li><strong>Access Controls:</strong> Strict employee access limitations</li>
+      <li><strong>Password Protection:</strong> Passwords are hashed and salted</li>
+      <li><strong>Regular Audits:</strong> Periodic security assessments and updates</li>
+      <li><strong>Monitoring:</strong> Continuous monitoring for suspicious activity</li>
+    </ul>
+
+    <h3>5.2 Your Responsibility</h3>
+    <p>You are responsible for:</p>
+    <ul>
+      <li>Maintaining the confidentiality of your password</li>
+      <li>Using a strong, unique password</li>
+      <li>Logging out of your account when finished</li>
+      <li>Notifying us immediately of any unauthorized access</li>
+    </ul>
+
+    <div class="warning-box">
+      <p><strong>Important:</strong> No system is completely secure. While we implement strong security measures, we cannot guarantee absolute security. Please take precautions to protect your account credentials.</p>
+    </div>
+
+    <h2>6. Data Retention</h2>
+
+    <h3>6.1 Active Accounts</h3>
+    <p>We retain your data for as long as your account is active and for the period necessary to provide our services.</p>
+
+    <h3>6.2 Inactive Accounts</h3>
+    <p>If your account is inactive for 24 months, we may delete your data after providing 30 days' notice.</p>
+
+    <h3>6.3 Account Deletion</h3>
+    <p>Upon account deletion:</p>
+    <ul>
+      <li>Data is retained for 30 days (configurable in settings: 30, 60, 90 days, or immediate)</li>
+      <li>You can export your data before deletion</li>
+      <li>After the retention period, data is permanently deleted</li>
+      <li>Some data may be retained longer for legal or security purposes</li>
+    </ul>
+
+    <h3>6.4 Backup Data</h3>
+    <p>Backup copies may persist in our systems for up to 90 days after deletion.</p>
+
+    <h2>7. Your Rights and Choices</h2>
+
+    <h3>7.1 Access and Portability</h3>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access your personal data at any time through your account</li>
+      <li>Export your data in CSV or JSON format</li>
+      <li>Request a copy of your data from us</li>
+    </ul>
+
+    <h3>7.2 Correction and Updates</h3>
+    <p>You can update your account information and business data directly in your account settings.</p>
+
+    <h3>7.3 Deletion</h3>
+    <p>You can delete your account at any time. This will permanently remove your data after the retention period.</p>
+
+    <h3>7.4 Marketing Communications</h3>
+    <p>You can opt out of marketing emails by:</p>
+    <ul>
+      <li>Clicking "unsubscribe" in any marketing email</li>
+      <li>Updating email preferences in your account settings</li>
+      <li>Contacting our support team</li>
+    </ul>
+    <p><em>Note: You cannot opt out of essential service communications (security alerts, billing notifications).</em></p>
+
+    <h3>7.5 Cookie Management</h3>
+    <p>You can control cookies through your browser settings. Note that disabling cookies may limit some functionality.</p>
+
+    <h2>8. Cookies and Tracking Technologies</h2>
+
+    <h3>8.1 Types of Cookies We Use</h3>
+    <table class="data-table">
+      <thead>
+      <tr>
+        <th>Cookie Type</th>
+        <th>Purpose</th>
+        <th>Duration</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><strong>Essential</strong></td>
+        <td>Authentication, security, core functionality</td>
+        <td>Session or persistent</td>
+      </tr>
+      <tr>
+        <td><strong>Preferences</strong></td>
+        <td>Remember your settings (theme, language)</td>
+        <td>Persistent (1 year)</td>
+      </tr>
+      <tr>
+        <td><strong>Analytics</strong></td>
+        <td>Understand usage patterns, improve service</td>
+        <td>Persistent (2 years)</td>
+      </tr>
+      <tr>
+        <td><strong>Marketing</strong></td>
+        <td>Track campaign effectiveness (opt-in only)</td>
+        <td>Persistent (90 days)</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h3>8.2 Third-Party Cookies</h3>
+    <p>We use Google Analytics with IP anonymization enabled. You can opt out using the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">Google Analytics Opt-out Browser Add-on</a>.</p>
+
+    <h2>9. International Data Transfers</h2>
+    <p>Your data may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place:</p>
+    <ul>
+      <li>Standard contractual clauses with service providers</li>
+      <li>Compliance with international data protection frameworks</li>
+      <li>Encryption of data in transit and at rest</li>
+    </ul>
+
+    <h2>10. Children's Privacy</h2>
+    <p>IR Generator is not intended for children under 18. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us immediately.</p>
+
+    <h2>11. Changes to This Privacy Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Changes will be:</p>
+    <ul>
+      <li>Posted on this page with an updated "Last Updated" date</li>
+      <li>Communicated via email for material changes</li>
+      <li>Effective immediately upon posting (unless otherwise stated)</li>
+    </ul>
+    <p>Your continued use of the Service after changes constitutes acceptance of the updated policy.</p>
+
+    <h2>12. Contact Us</h2>
+    <div class="contact-box">
+      <h3>Privacy Questions or Concerns?</h3>
+      <p>If you have questions about this Privacy Policy or want to exercise your rights, please contact us:</p>
+      <p>
+        <strong>Email:</strong> <a href="mailto:privacy@irgenerator.com">privacy@irgenerator.com</a><br>
+        <strong>Support:</strong> <a href="mailto:support@irgenerator.com">support@irgenerator.com</a><br>
+        <strong>Website:</strong> <a href="https://fervtech.com" target="_blank">fervtech.com</a><br>
+        <strong>Address:</strong> Fervtech, Accra, Ghana
+      </p>
+      <p style="margin-top: 1rem;">
+        <strong>Response Time:</strong> We aim to respond to all privacy-related inquiries within 30 days.
+      </p>
+    </div>
+
+    <h2>13. Regional Privacy Rights</h2>
+
+    <h3>13.1 Ghana Data Protection Act</h3>
+    <p>We comply with Ghana's Data Protection Act, 2012 (Act 843). You have rights under this Act including access, correction, and deletion of your personal data.</p>
+
+    <h3>13.2 GDPR (European Users)</h3>
+    <p>If you are in the European Economic Area, you have additional rights under GDPR including:</p>
+    <ul>
+      <li>Right to object to processing</li>
+      <li>Right to restrict processing</li>
+      <li>Right to lodge a complaint with supervisory authorities</li>
+      <li>Right to withdraw consent</li>
+    </ul>
+
+    <h3>13.3 Other Jurisdictions</h3>
+    <p>We respect privacy rights under applicable local laws. Contact us to learn more about your specific rights.</p>
+
+    <div class="highlight-box" style="margin-top: 3rem;">
+      <p><strong>Your Privacy, Our Priority:</strong> At IR Generator, we believe privacy is a fundamental right. We are committed to transparency, security, and giving you control over your data. If you have any concerns, please don't hesitate to reach out.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Dark mode support
+  if (localStorage.getItem('darkMode') === 'enabled') {
+    document.body.classList.add('dark-mode');
+  }
+</script>
+
+</body>
+</html>

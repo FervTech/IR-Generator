@@ -3,8 +3,8 @@ let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [
   {
     id: 'INV001',
     number: 'INV-2025-001',
-    clientName: 'Acme Corp',
-    clientContact: '+233 24 111 2222',
+    customerName: 'Acme Corp',
+    customerContact: '+233 24 111 2222',
     issueDate: '2025-02-01',
     dueDate: '2025-02-15',
     amount: 5000.00,
@@ -13,8 +13,8 @@ let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [
   {
     id: 'INV002',
     number: 'INV-2025-002',
-    clientName: 'Tech Solutions Ltd',
-    clientContact: '+233 20 333 4444',
+    customerName: 'Tech Solutions Ltd',
+    customerContact: '+233 20 333 4444',
     issueDate: '2025-02-05',
     dueDate: '2025-02-19',
     amount: 3500.00,
@@ -23,8 +23,8 @@ let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [
   {
     id: 'INV003',
     number: 'INV-2025-003',
-    clientName: 'Global Services',
-    clientContact: '+233 27 555 6666',
+    customertName: 'Global Services',
+    customerContact: '+233 27 555 6666',
     issueDate: '2025-01-20',
     dueDate: '2025-02-03',
     amount: 8200.00,

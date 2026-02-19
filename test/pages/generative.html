@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Invoice & Receipt Generator | Modern Professional Documents</title>
-  <link rel="stylesheet" href="css/test.css">
+  <link rel="stylesheet" href="../css/main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
 <nav class="navbar">
   <div class="nav-container">
     <div class="nav-left">
-      <div class="logo" onclick="location.reload()">
+      <div class="logo" onclick="location.href='../index.html'" >
         <div class="logo-icon">
           <i class="fas fa-file-invoice"></i>
         </div>
@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="nav-right">
-      <a href="pages/pricing.html" class="nav-link">
+      <a href="pricing.html" class="nav-link">
         <i class="fas fa-tags"></i>
         <span>Pricing</span>
       </a>
@@ -58,6 +58,13 @@
           <span>Donate</span>
         </button>
       </div>
+
+      <a href="../auth/login.html" class="nav-link" >
+        <span>Login</span>
+      </a>
+      <a href="../auth/signup.html" class="btn-coffee" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+        <span>Get Started Free</span>
+      </a>
     </div>
   </div>
 </nav>
@@ -428,11 +435,11 @@
 </footer>
 
 <script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="js/test.js"></script>
-<script src="js/paystack.js"></script>
-<script src="js/yr.js"></script>
+<script src="../js/test.js"></script>
+<script src="../js/paystack.js"></script>
+<script src="../js/yr.js"></script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-WPWP9J46E1"></script>
-<script src="js/gtags.js"> </script>
+<script src="../js/gtags.js"> </script>
 </body>
 </html>

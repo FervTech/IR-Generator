@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Receipt | IR Generator</title>
+
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="dashboard-body">
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-file-invoice"></i></div>
+      <span class="logo-text">IR Generator</span>
+    </div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="../pages/dashboard.html" class="nav-item">
+      <i class="fas fa-home"></i><span>Dashboard</span>
+    </a>
+    <a href="create-invoice.html" class="nav-item">
+      <i class="fas fa-plus-circle"></i><span>New Invoice</span>
+    </a>
+    <a href="invoices.html" class="nav-item">
+      <i class="fas fa-file-invoice"></i><span>Invoices</span><span class="badge" id="invoiceCount">0</span>
+    </a>
+    <a href="create-receipt.html" class="nav-item active">
+      <i class="fas fa-plus-circle"></i><span>New Receipt</span>
+    </a>
+    <a href="receipts.html" class="nav-item">
+      <i class="fas fa-receipt"></i><span>Receipts</span><span class="badge" id="receiptCount">0</span>
+    </a>
+    <a href="clients.html" class="nav-item">
+      <i class="fas fa-users"></i><span>Clients</span>
+    </a>
+    <a href="analytics.html" class="nav-item">
+      <i class="fas fa-chart-line"></i><span>Analytics</span><span class="pro-badge">PRO</span>
+    </a>
+    <a href="templates.html" class="nav-item">
+      <i class="fas fa-palette"></i><span>Templates</span><span class="pro-badge">PRO</span>
+    </a>
+    <div class="nav-divider"></div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="plan-card">
+      <div class="plan-icon"><i class="fas fa-gift"></i></div>
+      <div class="plan-info">
+        <strong>Free Plan</strong>
+        <p>Basic features</p>
+      </div>
+      <a href="../pages/pricing.html" class="btn-upgrade">
+        <i class="fas fa-crown"></i>Upgrade
+      </a>
+    </div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="dashboard-main">
+  <header class="topbar">
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="topbar-search">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search..." />
+    </div>
+
+    <div class="topbar-actions">
+      <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn">
+        <i class="fas fa-moon"></i>
+      </button>
+      <button class="notification-btn" onclick="toggleNotifications()">
+        <i class="fas fa-bell"></i><span class="notification-dot"></span>
+      </button>
+
+      <div class="user-menu">
+        <button class="user-menu-btn" onclick="toggleUserMenu()">
+          <div class="user-avatar"><i class="fas fa-user"></i></div>
+          <span class="user-name">Demo User</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <a href="profile.html" class="dropdown-item">
+            <i class="fas fa-user"></i>My Profile
+          </a>
+          <a href="settings.html" class="dropdown-item">
+            <i class="fas fa-cog"></i>Settings
+          </a>
+          <div class="dropdown-divider"></div>
+          <button onclick="handleLogout()" class="dropdown-item">
+            <i class="fas fa-sign-out-alt"></i>Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-content">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1 class="page-title">
+          <i class="fas fa-receipt"></i>Create New Receipt
+        </h1>
+        <p class="page-subtitle">Generate a payment receipt for your client</p>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn-secondary" onclick="window.location.href='#'">
+          <i class="fas fa-arrow-left"></i> Back to Receipts
+        </button>
+      </div>
+    </div>
+
+    <form id="createReceiptForm" class="receipt-form">
+      <!-- Client Selection -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="fas fa-user-circle"></i> Client Information</h3>
+        </div>
+        <div class="form-card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Select Client</label>
+              <select id="clientSelect" class="form-select" onchange="loadClientData()">
+                <option value="">-- Select a client --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Or</label>
+              <button type="button" class="btn-primary" onclick="openAddClientModal()" style="width: 100%">
+                <i class="fas fa-user-plus"></i> Add New Client
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Client Name *</label>
+              <input type="text" id="clientName" class="form-input" placeholder="Enter client name" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" id="clientCompany" class="form-input" placeholder="Enter company name" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="clientEmail" class="form-input" placeholder="client@example.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="tel" id="clientPhone" class="form-input" placeholder="+233 XX XXX XXXX" required />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Receipt Details -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="fas fa-file-alt"></i> Receipt Details</h3>
+        </div>
+        <div class="form-card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Receipt Number</label>
+              <input type="text" id="receiptNumber" class="form-input" readonly style="background: var(--bg-tertiary)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Date *</label>
+              <input type="date" id="paymentDate" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-check-circle" style="color: var(--success)"></i> Status
+              </label>
+              <input type="text" class="form-input" value="PAID" readonly style="background: var(--success); color: white; font-weight: 700; text-align: center;" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Payment Method *</label>
+              <select id="paymentMethod" class="form-select" required>
+                <option value="">-- Select payment method --</option>
+                <option value="Mobile Money">Mobile Money</option>
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Card">Card</option>
+                <option value="Cheque">Cheque</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Currency *</label>
+              <select id="currency" class="form-select" required onchange="updateCurrency()">
+                <option value="GHS">Ghanaian Cedi (₵)</option>
+                <option value="USD">US Dollar ($)</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="GBP">British Pound (£)</option>
+                <option value="NGN">Nigerian Naira (₦)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Transaction Reference</label>
+              <input type="text" id="transactionRef" class="form-input" placeholder="Optional reference number" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Items / Services -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="fas fa-shopping-bag"></i> Items / Services</h3>
+          <button type="button" class="btn-primary btn-sm" onclick="addReceiptItem()">
+            <i class="fas fa-plus"></i> Add Item
+          </button>
+        </div>
+        <div class="form-card-body">
+          <div class="receipt-items-table">
+            <table class="items-table">
+              <thead>
+              <tr>
+                <th width="40%">Description</th>
+                <th width="15%">Quantity</th>
+                <th width="20%">Unit Price</th>
+                <th width="20%">Amount</th>
+                <th width="5%"></th>
+              </tr>
+              </thead>
+              <tbody id="itemsTableBody">
+              <!-- Items will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Breakdown -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="fas fa-calculator"></i> Payment Breakdown</h3>
+        </div>
+        <div class="form-card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tax Rate (%)</label>
+              <input type="number" id="taxRate" class="form-input" value="0" min="0" max="100" step="0.1" onchange="calculateTotals()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount</label>
+              <div class="input-group">
+                <input type="number" id="discount" class="form-input" value="0" min="0" step="0.01" onchange="calculateTotals()" />
+                <select id="discountType" class="form-select" style="width: auto" onchange="calculateTotals()">
+                  <option value="amount">Amount</option>
+                  <option value="percent">Percent</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="receipt-summary">
+            <div class="summary-row">
+              <span>Subtotal:</span> <span id="subtotalAmount">₵0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Tax:</span> <span id="taxAmount">₵0.00</span>
+            </div>
+            <div class="summary-row">
+              <span>Discount:</span> <span id="discountAmount" style="color: var(--error)">₵0.00</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-row summary-total">
+              <span>Total Paid:</span> <span id="totalAmount">₵0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Notes -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <h3><i class="fas fa-sticky-note"></i> Additional Notes</h3>
+        </div>
+        <div class="form-card-body">
+          <textarea id="receiptNotes" class="form-textarea" rows="3" placeholder="Enter any additional notes (optional)..."></textarea>
+          <div class="footer-note-preview">
+            <strong>Receipt Footer:</strong>
+            <p id="footerNotePreview">Payment received with thanks!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="resetReceiptForm()">
+          <i class="fas fa-redo"></i> Reset
+        </button>
+        <button type="button" class="btn-secondary" onclick="previewReceipt()">
+          <i class="fas fa-eye"></i> Preview
+        </button>
+        <button type="submit" class="btn-primary">
+          <i class="fas fa-save"></i> Save Receipt
+        </button>
+        <button type="button" class="btn-primary" onclick="saveAndGeneratePDF()">
+          <i class="fas fa-file-pdf"></i> Save & Generate PDF
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add Client Modal -->
+<div id="addClientModal" class="modal" style="display: none">
+  <div class="modal-backdrop" onclick="closeAddClientModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-user-plus"></i> Add New Client</h3>
+      <button class="modal-close" onclick="closeAddClientModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <form id="addClientForm">
+        <div class="form-group">
+          <label class="form-label">Client Name *</label>
+          <input type="text" id="newClientName" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Company Name</label>
+          <input type="text" id="newClientCompany" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="newClientEmail" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone *</label>
+          <input type="tel" id="newClientPhone" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" id="newClientAddress" class="form-input" />
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeAddClientModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveNewClient()">
+        <i class="fas fa-save"></i> Save Client
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal" style="display: none">
+  <div class="modal-backdrop" onclick="closePreview()"></div>
+  <div class="modal-content modal-large">
+    <div class="modal-header">
+      <h3><i class="fas fa-eye"></i> Receipt Preview</h3>
+      <button class="modal-close" onclick="closePreview()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div id="previewContent" class="preview-container"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closePreview()">Close</button>
+      <button class="btn-primary" onclick="generatePDFFromPreview()">
+        <i class="fas fa-download"></i> Generate PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/utilities/utilities.js"></script>
+<script src="../js/utilities/toast-messages.js"></script>
+<script src="../js/global-settings.js"></script>
+<script src="../js/data-manager.js"></script>
+<script src="../js/export-manager.js"></script>
+<script src="../js/create-receipt.js"></script>
+</body>
+</html>

@@ -435,40 +435,6 @@ function toggleNotifications() {
   showToast('No new notifications', 'info');
 }
 
-function toggleDarkMode() {
-  const body = document.body;
-  const themeBtn = document.getElementById('themeBtn');
-
-  body.classList.toggle('dark-mode');
-
-  if (body.classList.contains('dark-mode')) {
-    themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-    localStorage.setItem('darkMode', 'enabled');
-  } else {
-    themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-    localStorage.setItem('darkMode', 'disabled');
-  }
-}
-
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    const themeBtn = document.getElementById('themeBtn');
-    if (themeBtn) {
-      themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-    }
-  }
-}
-
-function handleLogout() {
-  if (confirm('Are you sure you want to sign out?')) {
-    localStorage.removeItem('currentUser');
-    showToast('Signing out...', 'info');
-    setTimeout(() => {
-      window.location.href = '/login.html';
-    }, 1000);
-  }
-}
 
 // ===== UTILITY FUNCTIONS =====
 
@@ -479,51 +445,6 @@ function formatDate(dateString) {
     month: 'short',
     day: 'numeric'
   });
-}
-
-function getPaymentIcon(method) {
-  const icons = {
-    'Mobile Money': 'mobile-alt',
-    'Cash': 'money-bill-wave',
-    'Card': 'credit-card',
-    'Bank Transfer': 'university',
-    'Cheque': 'file-invoice-dollar'
-  };
-  return icons[method] || 'money-bill-wave';
-}
-
-function showToast(message, type = 'info', duration = 3000) {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <i class="fas fa-${getToastIcon(type)}"></i>
-    <span>${message}</span>
-  `;
-
-  container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.style.animation = 'slideInRight 0.3s ease-out reverse';
-    setTimeout(() => toast.remove(), 300);
-  }, duration);
-}
-
-function getToastIcon(type) {
-  const icons = {
-    error: 'exclamation-circle',
-    warning: 'exclamation-triangle',
-    info: 'info-circle',
-    success: 'check-circle'
-  };
-  return icons[type] || 'info-circle';
 }
 
 // Close dropdown when clicking outside

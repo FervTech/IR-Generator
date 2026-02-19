@@ -5,8 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Receipts | IR Generator</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/test/css/dashboard.css">
+  <link rel="stylesheet" href="../css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,12 +32,13 @@
       <i class="fas fa-home"></i>
       <span>Dashboard</span>
     </a>
-
+    <a href="create-invoice.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Invoice</span></a>
     <a href="invoices.html" class="nav-item">
       <i class="fas fa-file-invoice"></i>
       <span>Invoices</span>
       <span class="badge" id="invoiceCount">0</span>
     </a>
+    <a href="create-receipt.html" class="nav-item"><i class="fas fa-plus-circle"></i><span>New Receipt</span></a>
     <a href="receipts.html" class="nav-item active">
       <i class="fas fa-receipt"></i>
       <span>Receipts</span>
@@ -72,7 +72,7 @@
         <strong id="planName">Free Plan</strong>
         <p id="planUsage">0 / 3 receipts</p>
       </div>
-      <a href="/pricing.html" class="btn-upgrade">
+      <a href="../pages/pricing.html" class="btn-upgrade">
         <i class="fas fa-crown"></i>
         Upgrade
       </a>
@@ -113,18 +113,15 @@
         </button>
 
         <div class="user-dropdown" id="userDropdown">
-          <a href="/profile.html" class="dropdown-item">
+          <a href="profile.html" class="dropdown-item">
             <i class="fas fa-user"></i>
             My Profile
           </a>
-          <a href="/settings.html" class="dropdown-item">
+          <a href="settings.html" class="dropdown-item">
             <i class="fas fa-cog"></i>
             Settings
           </a>
-          <a href="/billing.html" class="dropdown-item">
-            <i class="fas fa-credit-card"></i>
-            Billing
-          </a>
+
           <div class="dropdown-divider"></div>
           <button onclick="handleLogout()" class="dropdown-item">
             <i class="fas fa-sign-out-alt"></i>
@@ -151,7 +148,7 @@
           <i class="fas fa-download"></i>
           Export
         </button>
-        <button class="btn-primary" onclick="window.location.href='/create-receipt.html'">
+        <button class="btn-primary" onclick="window.location.href='../partials/create-receipt.html'">
           <i class="fas fa-plus"></i>
           New Receipt
         </button>
@@ -337,5 +334,10 @@
 
 <script src="/test/js/auth.js"></script>
 <script src="/test/js/receipts.js"></script>
+<script src="../js/utilities/utilities.js"></script>
+<script src="../js/global-settings.js"></script>
+<script src="../js/utilities/toast-messages.js"></script>
+<script src="../js/data-manager.js"></script>
+<script src="../js/export-manager.js"></script>
 </body>
 </html>

@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('analyticsWrapper').classList.add('blurred');
   }
   initCharts();
-  setupDarkMode();
 });
 
 function hideProLock() {
@@ -91,47 +90,61 @@ function toggleSidebar() {
 function toggleUserMenu() { document.getElementById('userDropdown')?.classList.toggle('show'); }
 function toggleNotifications() { showToast('No notifications', 'info'); }
 
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  const isDark = document.body.classList.contains('dark-mode');
-  btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-  localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-}
 
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i>';
-  }
-}
 
-function handleLogout() {
-  if (confirm('Sign out?')) {
-    localStorage.removeItem('currentUser');
-    window.location.href = '/login.html';
-  }
-}
-
-function showToast(msg, type = 'info', duration = 3000) {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), duration);
-}
 
 // Add Analytics-specific styles
 const style = document.createElement('style');
 style.textContent = `
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-title-group h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-subtitle {
+    color: var(--text-secondary);
+  }
+
+  .page-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .btn-secondary {
+    padding: 0.9rem 1.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    background: var(--bg-tertiary);
+  }
+
 .pro-lock-overlay {
   position: absolute;
   top: 0;
