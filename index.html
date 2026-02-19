@@ -4,25 +4,26 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Invoice & Receipt Generator | Modern Professional Documents</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <title>IR Generator - Create Professional Invoices & Receipts in Seconds</title>
+  <meta name="description" content="Generate beautiful, professional invoices and receipts instantly. Free forever plan. No credit card required.">
+
+  <!-- Reuse existing CSS with variables -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9768490093098454"
-          crossorigin="anonymous"></script>
+
+
 </head>
 <body>
-<!-- Animated Background -->
+<!-- Animated Background (from existing CSS) -->
 <div class="animated-bg">
   <div class="bg-orb orb-1"></div>
   <div class="bg-orb orb-2"></div>
   <div class="bg-orb orb-3"></div>
 </div>
 
-<!-- Navigation -->
+<!-- Navigation (using existing navbar styles) -->
 <nav class="navbar">
   <div class="nav-container">
     <div class="nav-left">
@@ -34,358 +35,307 @@
       </div>
     </div>
     <div class="nav-right">
+      <a href="#features" class="nav-link">
+        <i class="fas fa-star"></i>
+        <span>Features</span>
+      </a>
+      <a href="pages/pricing.html" class="nav-link">
+        <i class="fas fa-tags"></i>
+        <span>Pricing</span>
+      </a>
+      <a href="pages/generative.html" class="nav-link">
+        <i class="fas fa-magic"></i>
+        <span>Generator</span>
+      </a>
       <button class="theme-toggle" onclick="toggleDarkMode()" id="themeBtn">
         <i class="fas fa-moon"></i>
-        <span>Dark Mode</span>
       </button>
-      <div class="support-badge">
-        <i class="fa-solid fa-heart"></i>
-        <span>Support Us</span>
-      </div>
-      <a href="https://buymeacoffee.com/fervtech" target="_blank" class="btn-coffee">
-        <i class="fas fa-coffee"></i>
-        <span>Buy Coffee</span>
+      <a href="auth/login.html" class="nav-link" >
+        <span>Login</span>
       </a>
-      <div class="donation-group">
-        <input type="number" id="donationAmount" placeholder="Amount" min="1" value="1" class="donation-input">
-        <span class="currency-badge">GHC</span>
-        <button id="paystackBtn" class="btn-donate">
-          <i class="fas fa-mobile-alt"></i>
-          <span>Momo</span>
-        </button>
-      </div>
+      <a href="auth/signup.html" class="btn-coffee" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;">
+        <span>Get Started Free</span>
+      </a>
     </div>
   </div>
 </nav>
 
-<!-- Main Content -->
-<main class="container">
-  <!-- Hero Section -->
-  <div class="hero-section">
-    <div class="hero-badge">
-      <i class="fas fa-bolt"></i>
-      <span>Fast & Professional</span>
-    </div>
-    <h1 class="hero-title">
-      <span class="title-line">Invoice & Receipt</span>
-      <span class="title-line gradient-text">Generator</span>
-    </h1>
-    <p class="hero-subtitle">Create stunning professional documents in seconds with our advanced generator</p>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <i class="fas fa-check-circle"></i>
-        <span>Instant PDF</span>
+<!-- Hero Section -->
+<section class="landing-hero">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1>
+        Create Professional Invoices
+        <span class="gradient-text">In Seconds</span>
+      </h1>
+      <p>
+        Generate beautiful, professional invoices and receipts instantly.
+        No design skills needed. Free forever plan available.
+      </p>
+      <div class="hero-cta">
+        <a href="auth/signup.html" class="btn-hero-primary">
+          Start Free Now
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="pages/generative.html" class="btn-hero-secondary">
+          Try Generator
+          <i class="fas fa-play"></i>
+        </a>
       </div>
-      <div class="stat-item">
+      <div class="landing-stats">
+        <div class="landing-stat">
+          <div class="landing-stat-number">10K+</div>
+          <div class="landing-stat-label">Invoices Generated</div>
+        </div>
+        <div class="landing-stat">
+          <div class="landing-stat-number">2K+</div>
+          <div class="landing-stat-label">Happy Users</div>
+        </div>
+        <div class="landing-stat">
+          <div class="landing-stat-number">99.9%</div>
+          <div class="landing-stat-label">Uptime</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="invoice-mockup">
+        <div class="mockup-header">
+          <div>
+            <div class="mockup-title">INVOICE</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">#INV-2026-001</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 700; color: var(--text-primary);">Your Company</div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem;">Feb 8, 2026</div>
+          </div>
+        </div>
+        <div class="mockup-row">
+          <span style="color: var(--text-secondary);">Web Development</span>
+          <span style="font-weight: 700; color: var(--text-primary);">₵2,500.00</span>
+        </div>
+        <div class="mockup-row">
+          <span style="color: var(--text-secondary);">UI/UX Design</span>
+          <span style="font-weight: 700; color: var(--text-primary);">₵1,800.00</span>
+        </div>
+        <div class="mockup-row">
+          <span style="color: var(--text-secondary);">Consultation</span>
+          <span style="font-weight: 700; color: var(--text-primary);">₵500.00</span>
+        </div>
+        <div class="mockup-total">
+          <span>TOTAL</span>
+          <span>₵4,800.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="landing-features" id="features">
+  <div class="landing-section-header">
+    <div class="section-label">Why Choose Us</div>
+    <h2 class="landing-section-title">Everything You Need to Invoice Like a Pro</h2>
+    <p class="landing-section-description">
+      Powerful features designed to make invoicing effortless and professional
+    </p>
+  </div>
+  <div class="landing-features-grid">
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
+        <i class="fas fa-bolt"></i>
+      </div>
+      <h3 class="landing-feature-title">Lightning Fast</h3>
+      <p class="landing-feature-description">
+        Generate professional invoices in under 30 seconds. No complex forms or confusing interfaces.
+      </p>
+    </div>
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
         <i class="fas fa-palette"></i>
-        <span>Custom Branding</span>
       </div>
-      <div class="stat-item">
+      <h3 class="landing-feature-title">Beautiful Design</h3>
+      <p class="landing-feature-description">
+        Choose from stunning, professionally designed templates that make you look good.
+      </p>
+    </div>
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <h3 class="landing-feature-title">Your Logo</h3>
+      <p class="landing-feature-description">
+        Upload your company logo and brand your invoices with your identity.
+      </p>
+    </div>
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
+        <i class="fas fa-file-pdf"></i>
+      </div>
+      <h3 class="landing-feature-title">PDF Export</h3>
+      <p class="landing-feature-description">
+        Download invoices as professional PDFs ready to send to clients immediately.
+      </p>
+    </div>
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
+        <i class="fas fa-calculator"></i>
+      </div>
+      <h3 class="landing-feature-title">Auto Calculate</h3>
+      <p class="landing-feature-description">
+        Automatic tax, discount, and total calculations. Never make a math error again.
+      </p>
+    </div>
+    <div class="landing-feature-card">
+      <div class="landing-feature-icon">
         <i class="fas fa-shield-alt"></i>
-        <span>Secure & Private</span>
       </div>
+      <h3 class="landing-feature-title">Secure & Private</h3>
+      <p class="landing-feature-description">
+        Your data is encrypted and secure. We never share your information with anyone.
+      </p>
     </div>
   </div>
+</section>
 
-  <!-- Form Card -->
-  <div class="form-card">
-    <form id="invoiceForm" onsubmit="generatePDF(event)">
-
-      <!-- Company Information Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="fas fa-building"></i>
-          </div>
-          <div class="section-title-group">
-            <h2 class="section-title">Company Information</h2>
-            <p class="section-subtitle">Add your business details</p>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="companyName" class="form-label">
-              <i class="fas fa-signature"></i>
-              Company Name
-            </label>
-            <input type="text" id="companyName" class="form-input" placeholder="Enter your company name" required>
-          </div>
-          <div class="form-group">
-            <label for="companyContact" class="form-label">
-              <i class="fas fa-phone"></i>
-              Contact Number
-            </label>
-            <input type="tel" id="companyContact" class="form-input" placeholder="Enter contact number" required>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <label class="form-label">
-            <i class="fas fa-image"></i>
-            Company Logo (Optional)
-          </label>
-          <div class="logo-upload-zone" onclick="document.getElementById('logoUpload').click()">
-            <div class="upload-content" id="uploadContent">
-              <div class="upload-icon">
-                <i class="fas fa-cloud-upload-alt"></i>
-              </div>
-              <p class="upload-text">Click or drag to upload logo</p>
-              <p class="upload-hint">Recommended: 150x80px, PNG or JPG</p>
-            </div>
-            <input type="file" id="logoUpload" accept="image/*" onchange="handleLogoUpload(event)" hidden>
-            <div class="logo-preview" id="logoPreview">
-              <img id="logoPreviewImg" src="" alt="Logo Preview">
-              <button type="button" class="btn-remove-logo" onclick="removeLogo()">
-                <i class="fas fa-times"></i>
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Document Details Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <div class="section-title-group">
-            <h2 class="section-title">Document Details</h2>
-            <p class="section-subtitle">Configure document settings</p>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="docType" class="form-label">
-              <i class="fas fa-file-invoice"></i>
-              Document Type
-            </label>
-            <div class="select-wrapper">
-              <select id="docType" class="form-select" required>
-                <option value="">Select document type</option>
-                <option value="Invoice">Invoice</option>
-                <option value="Receipt">Receipt</option>
-              </select>
-              <i class="fas fa-chevron-down select-icon"></i>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="currency" class="form-label">
-              <i class="fas fa-money-bill-wave"></i>
-              Currency
-            </label>
-            <div class="select-wrapper">
-              <select id="currency" class="form-select" required>
-                <option value="GHS">Ghanaian Cedi (₵)</option>
-                <option value="USD">US Dollar ($)</option>
-                <option value="EUR">Euro (€)</option>
-                <option value="GBP">British Pound (£)</option>
-                <option value="NGN">Nigerian Naira (₦)</option>
-                <option value="ZAR">South African Rand (R)</option>
-                <option value="KES">Kenyan Shilling (KSh)</option>
-                <option value="INR">Indian Rupee (₹)</option>
-                <option value="JPY">Japanese Yen (¥)</option>
-                <option value="AUD">Australian Dollar (A$)</option>
-              </select>
-              <i class="fas fa-chevron-down select-icon"></i>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="paymentMethod" class="form-label">
-              <i class="fas fa-credit-card"></i>
-              Payment Method
-            </label>
-            <div class="select-wrapper">
-              <select id="paymentMethod" class="form-select" required>
-                <option value="">Select payment method</option>
-                <option value="Mobile Money">Mobile Money</option>
-                <option value="Card">Card</option>
-                <option value="Cheque">Cheque</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Cash">Cash</option>
-              </select>
-              <i class="fas fa-chevron-down select-icon"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Customer Information Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="section-title-group">
-            <h2 class="section-title">Customer Information</h2>
-            <p class="section-subtitle">Who is this document for?</p>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="customerName" class="form-label">
-              <i class="fas fa-user"></i>
-              Customer Name
-            </label>
-            <input type="text" id="customerName" class="form-input" placeholder="Enter customer name" required>
-          </div>
-          <div class="form-group">
-            <label for="customerContact" class="form-label">
-              <i class="fas fa-phone"></i>
-              Customer Contact
-            </label>
-            <input type="tel" id="customerContact" class="form-input" placeholder="Enter customer contact" required>
-          </div>
-        </div>
-      </div>
-
-      <!-- Items Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="section-title-group">
-            <h2 class="section-title">Items & Services</h2>
-            <p class="section-subtitle">Add products or services</p>
-          </div>
-        </div>
-
-        <div class="items-container" id="items-container"></div>
-        <button type="button" class="btn-add-item" onclick="addItem()">
-          <i class="fas fa-plus"></i>
-          <span>Add Item</span>
-        </button>
-      </div>
-
-      <!-- Tax & Discount Section -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="fas fa-calculator"></i>
-          </div>
-          <div class="section-title-group">
-            <h2 class="section-title">Tax & Discount</h2>
-            <p class="section-subtitle">Optional adjustments</p>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="taxRate" class="form-label">
-              <i class="fas fa-percentage"></i>
-              Tax/VAT/GST Rate (%)
-            </label>
-            <input type="number" id="taxRate" class="form-input" placeholder="0" min="0" max="100" step="0.01" onchange="calculateTotal()">
-          </div>
-          <div class="form-group">
-            <label for="discount" class="form-label">
-              <i class="fas fa-tag"></i>
-              Discount
-            </label>
-            <div class="input-group">
-              <input type="number" id="discount" class="form-input" placeholder="0" min="0" step="0.01" onchange="calculateTotal()">
-              <select id="discountType" class="form-select discount-type" onchange="calculateTotal()">
-                <option value="amount">Amount</option>
-                <option value="percent">Percent</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Summary Section -->
-      <div id="total" class="summary-section hidden">
-        <div class="summary-card">
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="fas fa-receipt"></i>
-              Subtotal
-            </span>
-            <span class="summary-value" id="subtotalDisplay">₵0.00</span>
-          </div>
-          <div class="summary-row" id="taxDisplayRow">
-            <span class="summary-label">
-              <i class="fas fa-percentage"></i>
-              Tax (0%)
-            </span>
-            <span class="summary-value" id="taxDisplay">₵0.00</span>
-          </div>
-          <div class="summary-row" id="discountDisplayRow">
-            <span class="summary-label">
-              <i class="fas fa-tag"></i>
-              Discount
-            </span>
-            <span class="summary-value discount" id="discountDisplay">₵0.00</span>
-          </div>
-          <div class="summary-divider"></div>
-          <div class="summary-row total-row">
-            <span class="summary-label total">
-              <i class="fas fa-file-invoice-dollar"></i>
-              Total
-            </span>
-            <span class="summary-value total" id="totalDisplay">₵0.00</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button type="button" class="btn-action btn-reset" onclick="resetForm()">
-          <i class="fas fa-redo"></i>
-          <span>Reset</span>
-        </button>
-        <button type="button" class="btn-action btn-preview" onclick="showPreview()">
-          <i class="fas fa-eye"></i>
-          <span>Preview</span>
-        </button>
-        <button type="submit" class="btn-action btn-generate">
-          <i class="fas fa-download"></i>
-          <span>Generate PDF</span>
-          <div class="btn-shine"></div>
-        </button>
-      </div>
-    </form>
+<!-- Pricing Section - 4 Plans -->
+<section class="landing-pricing" id="pricing">
+  <div class="landing-section-header">
+    <div class="section-label">Pricing</div>
+    <h2 class="landing-section-title">Simple, Transparent Pricing</h2>
+    <p class="landing-section-description">
+      Choose the plan that fits your business. No hidden fees.
+    </p>
   </div>
-</main>
+  <div class="landing-pricing-grid">
 
-<!-- Toast Container -->
-<div id="toastContainer" class="toast-container"></div>
+    <!-- Basic (Free) Plan -->
+    <div class="landing-pricing-card">
+      <div class="landing-pricing-badge free">
+        <i class="fas fa-gift"></i> FREE
+      </div>
+      <h3 class="landing-plan-name">Basic</h3>
+      <p class="landing-plan-tagline">Perfect for getting started</p>
+      <div class="landing-plan-price">
+        <span class="currency">GH₵</span>
+        <span>0</span>
+        <span class="period">forever</span>
+      </div>
+      <div class="landing-price-usd">$0 USD</div>
+      <ul class="landing-plan-features">
+        <li><i class="fas fa-check-circle"></i><div><strong>Generate invoices</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>1 company profile</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Logo upload</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>PDF download</strong></div></li>
+        <li class="disabled"><i class="fas fa-times-circle"></i><div><strong>Last 3 invoices only</strong></div></li>
+      </ul>
+      <button class="btn-landing-plan" onclick="window.location.href='auth/signup.html'">
+        <i class="fas fa-rocket"></i>
+        Start Free
+      </button>
+      <p class="landing-plan-footer">No credit card required</p>
+    </div>
 
-<!-- Preview Modal -->
-<div id="previewModal" class="modal">
-  <div class="modal-backdrop" onclick="closePreview()"></div>
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>
-        <i class="fas fa-eye"></i>
-        Document Preview
-      </h2>
-      <button class="modal-close" onclick="closePreview()">
-        <i class="fas fa-times"></i>
+    <!-- Starter Plan -->
+    <div class="landing-pricing-card">
+      <h3 class="landing-plan-name">Starter</h3>
+      <p class="landing-plan-tagline">For freelancers & consultants</p>
+      <div class="landing-plan-price">
+        <span class="currency">GH₵</span>
+        <span>30</span>
+        <span class="period">/ month</span>
+      </div>
+      <div class="landing-price-usd">$3 USD / month</div>
+      <ul class="landing-plan-features">
+        <li><i class="fas fa-check-circle"></i><div><strong>Everything in Free</strong></div></li>
+        <li><i class="fas fa-star"></i><div><strong>No watermark</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Save 200 invoices</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Email invoices</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Premium templates</strong></div></li>
+      </ul>
+      <button class="btn-landing-plan" onclick="window.location.href='auth/signup.html'">
+        <i class="fas fa-rocket"></i>
+        Get Starter
       </button>
+      <p class="landing-plan-footer">Cancel anytime</p>
     </div>
-    <div class="modal-body">
-      <div id="previewContent"></div>
+
+    <!-- Business Plan (Featured) -->
+    <div class="landing-pricing-card featured">
+      <div class="landing-pricing-badge">
+        <i class="fas fa-crown"></i> MOST POPULAR
+      </div>
+      <h3 class="landing-plan-name">Business</h3>
+      <p class="landing-plan-tagline">For SMEs & growing teams</p>
+      <div class="landing-plan-price">
+        <span class="currency">GH₵</span>
+        <span>80</span>
+        <span class="period">/ month</span>
+      </div>
+      <div class="landing-price-usd">$8 USD / month</div>
+      <ul class="landing-plan-features">
+        <li><i class="fas fa-check-circle"></i><div><strong>Everything in Starter</strong></div></li>
+        <li><i class="fas fa-star"></i><div><strong>5 companies</strong></div></li>
+        <li><i class="fas fa-star"></i><div><strong>Team access (5 users)</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Client management</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>Analytics & reports</strong></div></li>
+      </ul>
+      <button class="btn-landing-plan" onclick="window.location.href='auth/signup.html'">
+        <i class="fas fa-crown"></i>
+        Get Business
+      </button>
+      <p class="landing-plan-footer">14-day free trial</p>
     </div>
-    <div class="modal-footer">
-      <button onclick="closePreview()" class="btn-action btn-cancel">
-        <i class="fas fa-times"></i>
-        Close
+
+    <!-- Enterprise Plan -->
+    <div class="landing-pricing-card">
+      <div class="landing-pricing-badge enterprise">
+        <i class="fas fa-building"></i> ENTERPRISE
+      </div>
+      <h3 class="landing-plan-name">Enterprise</h3>
+      <p class="landing-plan-tagline">For large organizations</p>
+      <div class="landing-plan-price">
+        <span class="currency">GH₵</span>
+        <span>300</span>
+        <span class="period">+ / month</span>
+      </div>
+      <div class="landing-price-usd">Custom pricing</div>
+      <ul class="landing-plan-features">
+        <li><i class="fas fa-check-circle"></i><div><strong>Everything in Business</strong></div></li>
+        <li><i class="fas fa-star"></i><div><strong>Unlimited users</strong></div></li>
+        <li><i class="fas fa-star"></i><div><strong>Unlimited companies</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>API access</strong></div></li>
+        <li><i class="fas fa-check-circle"></i><div><strong>White-label option</strong></div></li>
+      </ul>
+      <button class="btn-landing-plan" onclick="window.location.href='pages/pricing.html'">
+        <i class="fas fa-phone"></i>
+        Contact Sales
       </button>
-      <button onclick="generatePDFFromPreview()" class="btn-action btn-generate">
-        <i class="fas fa-download"></i>
-        Generate PDF
-      </button>
+      <p class="landing-plan-footer">Custom onboarding</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="landing-cta">
+  <div class="landing-cta-container">
+    <div class="landing-cta-content">
+      <h2>Ready to Get Started?</h2>
+      <p>Join thousands of businesses creating professional invoices</p>
+      <a href="auth/signup.html" class="btn-hero-primary" style="font-size: 1.2rem; padding: 1.5rem 3rem;">
+        Create Free Account
+        <i class="fas fa-arrow-right"></i>
+      </a>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Footer -->
+<button id="backToTop">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+
+<!-- Footer (using existing footer styles) -->
 <footer class="footer">
   <div class="footer-content">
     <div class="footer-brand">
@@ -393,9 +343,21 @@
         <i class="fas fa-file-invoice"></i>
         <span>IR Generator</span>
       </div>
-      <p class="footer-tagline">Professional documents made simple</p>
+      <p class="footer-tagline">Professional invoice and receipt generation made simple.</p>
     </div>
     <div class="footer-links">
+      <a href="#features" class="footer-link">
+        <i class="fas fa-star"></i>
+        Features
+      </a>
+      <a href="pricing.html" class="footer-link">
+        <i class="fas fa-tags"></i>
+        Pricing
+      </a>
+      <a href="pages/generative.html" class="footer-link">
+        <i class="fas fa-magic"></i>
+        Generator
+      </a>
       <a href="https://fervtech.com" target="_blank" class="footer-link">
         <i class="fas fa-globe"></i>
         Website
@@ -416,19 +378,46 @@
       2025 – <span id="currentYear"></span> All rights reserved
       <strong>Fervtech</strong>
     </p>
-    <p class="footer-love">
-      <i class="fas fa-heart"></i>
-      Made with love by fervtech
-    </p>
+
   </div>
 </footer>
 
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="/js/app.js"></script>
-<script src="/js/paystack.js"></script>
-<script src="/js/yr.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-WPWP9J46E1"></script>
-<script src="/js/gtags.js"></script>
+
+
+//Theme
+<script src="js/utilities/utilities.js"></script>
+
+//Utility
+<script src="js/yr.js"></script>
+
+<script>
+
+
+
+    // Add scroll animation for feature cards
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }, index * 100);
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.landing-feature-card, .landing-pricing-card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(30px)';
+      card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(card);
+    });
+
+</script>
 </body>
 </html>
