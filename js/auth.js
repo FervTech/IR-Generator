@@ -352,7 +352,7 @@ function handleLogout() {
     localStorage.removeItem('currentUser');
     showToast('Signing out...', 'info');
     setTimeout(() => {
-      window.location.href = '../auth/login.html';
+      window.location.href = '../pages/login.html';
     }, 1000);
   }
 }

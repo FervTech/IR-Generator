@@ -32,7 +32,7 @@ function upgradePlan(planName) {
 
   // In a real app, this would redirect to payment page
   setTimeout(() => {
-    window.location.href = `../../auth/signup.html`;
+    window.location.href = `../../pages/signup.html`;
     console.log(`Upgrading to ${planName} plan`);
   }, 1500);
 }
