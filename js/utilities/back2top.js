@@ -15,3 +15,9 @@ backToTop.addEventListener("click", () => {
     behavior: "smooth"
   });
 });
+
+
+// Mobile Menu Toggle - MINIMAL
+function toggleMobileMenu() {
+  document.querySelector('.nav-right').classList.toggle('active');
+}
