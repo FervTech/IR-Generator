@@ -1,5 +1,5 @@
-// Clients Page JavaScript - Enterprise Edition
-// ====================================================
+// Clients Page JavaScript - WITH SANITIZER
+// ==========================================
 
 let filteredClients = [];
 let currentPage = 1;
@@ -10,15 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStats();
 });
 
-// ===== LOAD & DISPLAY CLIENTS =====
 function loadClients(page = currentPage) {
   const tbody = document.getElementById('clientsTableBody');
   if (!tbody) return;
 
-  // Get real clients from DataManager (localStorage)
   const allClients = window.DataManager?.getClients() || [];
-
-  // Apply current filters/search if any (filteredClients should already be set)
   const displayClients = filteredClients.length > 0 ? filteredClients : allClients;
 
   currentPage = page;
@@ -69,12 +65,8 @@ function loadClients(page = currentPage) {
       </td>
     </tr>
   `).join('');
-
-  // Optional: update pagination UI if you have prev/next buttons
-  // updatePaginationControls(displayClients.length);
 }
 
-// ===== STATS UPDATE =====
 function updateStats() {
   const clients = window.DataManager?.getClients() || [];
 
@@ -94,10 +86,8 @@ function updateStats() {
   if (revenueEl) revenueEl.textContent = `₵${totalRevenue.toFixed(2)}`;
 }
 
-// ===== SEARCH =====
 function searchClients() {
   const term = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
-
   const allClients = window.DataManager?.getClients() || [];
 
   filteredClients = allClients.filter(c =>
@@ -111,19 +101,16 @@ function searchClients() {
   loadClients();
 }
 
-// ===== FILTER & SORT =====
 function filterClients() {
   const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-  const sortFilter   = document.getElementById('sortFilter')?.value   || 'name-asc';
+  const sortFilter = document.getElementById('sortFilter')?.value || 'name-asc';
 
   let clients = window.DataManager?.getClients() || [];
 
-  // Status filter
   if (statusFilter !== 'all') {
     clients = clients.filter(c => c.status === statusFilter);
   }
 
-  // Sorting
   if (sortFilter === 'name-asc') {
     clients.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   } else if (sortFilter === 'name-desc') {
@@ -139,19 +126,16 @@ function filterClients() {
   loadClients();
 }
 
-// ===== CLIENT ACTIONS =====
 function viewClient(id) {
   showToast(`Viewing client ${id}... (detail page coming soon)`, 'info');
-  // Future: window.location.href = `client-detail.html?id=${id}`;
 }
 
 function createInvoiceForClient(id) {
-  window.location.href = `../partials/create-invoice.html?client=${id}`;
+  window.location.href = `/create-invoice.html?client=${id}`;
 }
 
 function emailClient(id) {
   showToast(`Emailing client ${id}...`, 'info');
-  // Future: open mailto: or modal with email
 }
 
 function deleteClient(id) {
@@ -163,7 +147,6 @@ function deleteClient(id) {
 
   if (success) {
     showToast('Client deleted successfully', 'success');
-    // Reset filtered list and reload
     filteredClients = [];
     loadClients();
     updateStats();
@@ -172,7 +155,8 @@ function deleteClient(id) {
   }
 }
 
-// ===== ADD NEW CLIENT MODAL =====
+// ===== ADD CLIENT MODAL (WITH SANITIZER) =====
+
 function openAddClientModal() {
   const modal = document.getElementById('addClientModal');
   if (modal) {
@@ -191,24 +175,31 @@ function closeAddClientModal() {
 }
 
 function saveNewClient() {
-  const name    = document.getElementById('newClientName')?.value.trim();
-  const company = document.getElementById('newClientCompany')?.value.trim();
-  const email   = document.getElementById('newClientEmail')?.value.trim();
-  const phone   = document.getElementById('newClientPhone')?.value.trim();
-  const address = document.getElementById('newClientAddress')?.value.trim();
+  // Collect raw data
+  const rawClientData = {
+    name: document.getElementById('newClientName')?.value,
+    company: document.getElementById('newClientCompany')?.value,
+    email: document.getElementById('newClientEmail')?.value,
+    phone: document.getElementById('newClientPhone')?.value,
+    address: document.getElementById('newClientAddress')?.value,
+    city: document.getElementById('newClientCity')?.value || '',
+    country: document.getElementById('newClientCountry')?.value || '',
+    notes: document.getElementById('newClientNotes')?.value || ''
+  };
 
-  if (!name || !phone) {
-    showToast('Name and Phone are required fields', 'error');
-    return;
+  // SANITIZE using IRSanitizer
+  const cleanClient = IRSanitizer.sanitizeClient(rawClientData);
+
+  // VALIDATE (auto shows toast on error!)
+  const validation = IRSanitizer.validateClient(cleanClient);
+  if (!validation.valid) {
+    return; // Toast already shown by sanitizer!
   }
 
+  // Save clean data
   try {
     const newClient = window.DataManager.createClient({
-      name,
-      company: company || '',
-      email: email || '',
-      phone,
-      address: address || '',
+      ...cleanClient,
       status: 'active',
       totalInvoices: 0,
       totalSpent: 0
@@ -217,21 +208,17 @@ function saveNewClient() {
     showToast('Client added successfully!', 'success');
     closeAddClientModal();
 
-    // Refresh everything
-    filteredClients = []; // reset filter to show new client
+    filteredClients = [];
     loadClients();
     updateStats();
-
   } catch (error) {
     showToast('Failed to add client. Please try again.', 'error');
     console.error('Add client error:', error);
   }
 }
 
-// ===== OTHER UTILITIES =====
 function exportClients() {
   showToast('Exporting clients to CSV... (coming soon)', 'info');
-  // Future: generate real CSV and download
 }
 
 function toggleSidebar() {
@@ -247,7 +234,7 @@ function toggleNotifications() {
   showToast('No notifications at this time', 'info');
 }
 
-// ===== PAGE-SPECIFIC STYLES (your original styles preserved) =====
+// Styles
 const style = document.createElement('style');
 style.textContent = `
   .page-header {

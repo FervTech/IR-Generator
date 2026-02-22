@@ -1,5 +1,5 @@
-// Create Invoice Page JavaScript
-// ===============================
+// Create Invoice Page JavaScript - WITH SANITIZER
+// ================================================
 
 let itemCounter = 0;
 let currentCurrencySymbol = '₵';
@@ -8,27 +8,20 @@ let selectedClientId = null;
 document.addEventListener('DOMContentLoaded', () => {
   initializeInvoiceForm();
   loadClients();
-
+  setupRealTimeValidation();
   updateBadgeCounts();
 });
 
 function initializeInvoiceForm() {
-  // Set today's date
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('issueDate').value = today;
 
-  // Calculate due date (30 days from now by default)
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + 30);
   document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
 
-  // Generate invoice number
   generateInvoiceNumber();
-
-  // Add first item
   addInvoiceItem();
-
-  // Load company info from settings
   loadCompanyInfo();
 }
 
@@ -39,17 +32,13 @@ function generateInvoiceNumber() {
 
 function loadCompanyInfo() {
   const settings = window.GlobalSettings?.settings?.general || {};
-  // Company info is already stored in settings
 }
 
 function loadClients() {
   const clients = window.DataManager?.getClients() || [];
   const select = document.getElementById('clientSelect');
 
-  if (!select) {
-    console.warn('clientSelect element not found');
-    return;
-  }
+  if (!select) return;
 
   select.innerHTML = '<option value="">-- Select a client --</option>';
 
@@ -88,7 +77,44 @@ function clearClientData() {
   document.getElementById('clientPhone').value = '';
 }
 
-// ===== CLIENT MODAL =====
+// ===== REAL-TIME VALIDATION (SANITIZER) =====
+
+function setupRealTimeValidation() {
+  // Email validation
+  document.getElementById('clientEmail')?.addEventListener('blur', function() {
+    const email = this.value.trim();
+    if (email && !IRSanitizer.isValidEmail(email)) {
+      this.classList.add('invalid');
+      showToast('Invalid email format', 'warning');
+    } else {
+      this.classList.remove('invalid');
+    }
+  });
+
+  // Phone validation
+  document.getElementById('clientPhone')?.addEventListener('blur', function() {
+    const phone = this.value.trim();
+    if (phone && !IRSanitizer.isValidPhone(phone)) {
+      this.classList.add('invalid');
+      showToast('Invalid phone number', 'warning');
+    } else {
+      this.classList.remove('invalid');
+    }
+  });
+
+  // Price auto-formatting
+  document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('item-price')) {
+      const original = e.target.value;
+      const cleaned = IRSanitizer.sanitizePrice(original);
+      if (original !== cleaned.toString()) {
+        e.target.value = cleaned.toFixed(2);
+      }
+    }
+  });
+}
+
+// ===== CLIENT MODAL (WITH SANITIZER) =====
 
 function openAddClientModal() {
   document.getElementById('addClientModal').style.display = 'flex';
@@ -101,31 +127,30 @@ function closeAddClientModal() {
 }
 
 function saveNewClient() {
-  const name = document.getElementById('newClientName').value.trim();
-  const company = document.getElementById('newClientCompany').value.trim();
-  const email = document.getElementById('newClientEmail').value.trim();
-  const phone = document.getElementById('newClientPhone').value.trim();
-  const address = document.getElementById('newClientAddress').value.trim();
+  // Collect raw data
+  const rawClientData = {
+    name: document.getElementById('newClientName').value,
+    company: document.getElementById('newClientCompany').value,
+    email: document.getElementById('newClientEmail').value,
+    phone: document.getElementById('newClientPhone').value,
+    address: document.getElementById('newClientAddress').value
+  };
 
-  if (!name || !email || !phone) {
-    showToast('Please fill all required fields', 'error');
-    return;
+  // Sanitize
+  const cleanClient = IRSanitizer.sanitizeClient(rawClientData);
+
+  // Validate (auto shows toast!)
+  const validation = IRSanitizer.validateClient(cleanClient);
+  if (!validation.valid) {
+    return; // Toast already shown
   }
 
   try {
-    const newClient = window.DataManager.createClient({
-      name,
-      company,
-      email,
-      phone,
-      address
-    });
-
+    const newClient = window.DataManager.createClient(cleanClient);
     showToast('Client added successfully!', 'success');
     closeAddClientModal();
     loadClients();
 
-    // Auto-select the new client
     document.getElementById('clientSelect').value = newClient.id;
     loadClientData();
   } catch (error) {
@@ -170,7 +195,6 @@ function removeInvoiceItem(id) {
     row.remove();
     calculateTotals();
 
-    // Ensure at least one item row exists
     const tbody = document.getElementById('itemsTableBody');
     if (tbody.children.length === 0) {
       addInvoiceItem();
@@ -183,7 +207,6 @@ function removeInvoiceItem(id) {
 function calculateTotals() {
   let subtotal = 0;
 
-  // Calculate subtotal from items
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
     const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
@@ -198,11 +221,9 @@ function calculateTotals() {
     subtotal += amount;
   });
 
-  // Calculate tax
   const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
 
-  // Calculate discount
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
   const discountType = document.getElementById('discountType').value;
   let discountAmount = 0;
@@ -213,10 +234,8 @@ function calculateTotals() {
     discountAmount = Math.min(discountInput, subtotal + taxAmount);
   }
 
-  // Calculate total
   const total = subtotal + taxAmount - discountAmount;
 
-  // Update display
   document.getElementById('subtotalAmount').textContent = `${currentCurrencySymbol}${subtotal.toFixed(2)}`;
   document.getElementById('taxAmount').textContent = `${currentCurrencySymbol}${taxAmount.toFixed(2)}`;
   document.getElementById('discountAmount').textContent = `${currentCurrencySymbol}${discountAmount.toFixed(2)}`;
@@ -236,7 +255,7 @@ function updateCurrency() {
   calculateTotals();
 }
 
-// ===== FORM SUBMISSION =====
+// ===== FORM SUBMISSION (WITH SANITIZER) =====
 
 document.getElementById('createInvoiceForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -244,26 +263,16 @@ document.getElementById('createInvoiceForm')?.addEventListener('submit', functio
 });
 
 function saveInvoice(generatePDF = false) {
-  // Validate form
-  if (!validateInvoiceForm()) {
-    return;
-  }
-
   // Collect items
   const items = [];
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
-    const description = row.querySelector('.item-description')?.value;
-    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-
-    if (description && qty > 0 && price >= 0) {
-      items.push({
-        name: description,
-        qty,
-        price
-      });
-    }
+    const item = {
+      name: row.querySelector('.item-description')?.value,
+      qty: row.querySelector('.item-quantity')?.value,
+      price: row.querySelector('.item-price')?.value
+    };
+    if (item.name) items.push(item);
   });
 
   if (items.length === 0) {
@@ -272,7 +281,9 @@ function saveInvoice(generatePDF = false) {
   }
 
   // Calculate totals
-  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+  const subtotal = items.reduce((sum, item) =>
+    sum + (parseFloat(item.qty) * parseFloat(item.price)), 0
+  );
   const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
@@ -282,11 +293,10 @@ function saveInvoice(generatePDF = false) {
     : Math.min(discountInput, subtotal + taxAmount);
   const total = subtotal + taxAmount - discountAmount;
 
-  // Get settings for company info
   const settings = window.GlobalSettings?.settings?.general || {};
 
-  // Create invoice data
-  const invoiceData = {
+  // Build raw invoice data
+  const rawInvoiceData = {
     number: document.getElementById('invoiceNumber').value,
     clientId: selectedClientId,
     clientName: document.getElementById('clientName').value,
@@ -310,8 +320,18 @@ function saveInvoice(generatePDF = false) {
     notes: document.getElementById('invoiceNotes').value
   };
 
+  // SANITIZE the complete invoice
+  const cleanInvoice = IRSanitizer.sanitizeInvoice(rawInvoiceData);
+
+  // VALIDATE (auto shows toast on error!)
+  const validation = IRSanitizer.validateInvoice(cleanInvoice);
+  if (!validation.valid) {
+    return; // Toast already shown by sanitizer!
+  }
+
+  // Save clean data
   try {
-    const savedInvoice = window.DataManager.createInvoice(invoiceData);
+    const savedInvoice = window.DataManager.createInvoice(cleanInvoice);
     showToast('Invoice saved successfully!', 'success');
 
     if (generatePDF) {
@@ -320,7 +340,7 @@ function saveInvoice(generatePDF = false) {
 
     setTimeout(() => {
       window.location.href = '/invoices.html';
-    }, 1500);
+    }, generatePDF ? 2500 : 1500);
   } catch (error) {
     showToast('Failed to save invoice', 'error');
     console.error(error);
@@ -332,19 +352,13 @@ function saveAndGeneratePDF() {
 }
 
 function validateInvoiceForm() {
+  // Basic validation (sanitizer will do deep validation)
   const clientName = document.getElementById('clientName').value.trim();
-  const clientEmail = document.getElementById('clientEmail').value.trim();
-  const clientPhone = document.getElementById('clientPhone').value.trim();
   const issueDate = document.getElementById('issueDate').value;
   const dueDate = document.getElementById('dueDate').value;
 
-  if (!clientName || !clientEmail || !clientPhone) {
-    showToast('Please fill all required client fields', 'error');
-    return false;
-  }
-
-  if (!issueDate || !dueDate) {
-    showToast('Please fill all required date fields', 'error');
+  if (!clientName || !issueDate || !dueDate) {
+    showToast('Please fill all required fields', 'error');
     return false;
   }
 
@@ -361,7 +375,6 @@ function validateInvoiceForm() {
 function generateInvoicePDF(invoice) {
   showToast('Generating PDF...', 'info');
 
-  // Build HTML for PDF
   const pdfHTML = buildInvoicePDFHTML(invoice);
 
   const opt = {
@@ -479,15 +492,15 @@ function toggleSidebar() {
   document.querySelector('.dashboard-main')?.classList.toggle('full-width');
 }
 
+function toggleUserMenu() {
+  document.getElementById('userDropdown')?.classList.toggle('show');
+}
 
+function toggleNotifications() {
+  showToast('No notifications', 'info');
+}
 
-
-function toggleUserMenu() { document.getElementById('userDropdown')?.classList.toggle('show'); }
-function toggleNotifications() { showToast('No notifications', 'info'); }
-
-
-
-  function updateBadgeCounts() {
+function updateBadgeCounts() {
   const invoices = window.DataManager.getInvoices();
   const receipts = window.DataManager.getReceipts();
 
@@ -498,12 +511,18 @@ function toggleNotifications() { showToast('No notifications', 'info'); }
   if (receiptBadge) receiptBadge.textContent = receipts.length;
 }
 
-
-// Add additional styles for receipts page
+// Add styles
 const style = document.createElement('style');
 style.textContent = `
-
-.page-header {
+  .form-input.invalid,
+  .form-select.invalid {
+    border-color: var(--error) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  .form-input.valid {
+    border-color: var(--success) !important;
+  }
+  .page-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -511,7 +530,6 @@ style.textContent = `
     flex-wrap: wrap;
     gap: 1rem;
   }
-
   .page-title-group h1 {
     font-family: var(--font-display);
     font-size: 2rem;
@@ -522,16 +540,13 @@ style.textContent = `
     gap: 0.75rem;
     margin-bottom: 0.5rem;
   }
-
   .page-subtitle {
     color: var(--text-secondary);
   }
-
   .page-actions {
     display: flex;
     gap: 1rem;
   }
-
   .btn-secondary {
     padding: 0.9rem 1.5rem;
     background: var(--bg-secondary);
@@ -545,11 +560,9 @@ style.textContent = `
     gap: 0.5rem;
     transition: all var(--transition-fast);
   }
-
   .btn-secondary:hover {
     border-color: var(--primary);
     background: var(--bg-tertiary);
   }
-
 `;
 document.head.appendChild(style);
