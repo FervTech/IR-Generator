@@ -1,5 +1,5 @@
-// Settings Page JavaScript - WITH SANITIZER
-// ==========================================
+// Settings Page JavaScript
+// ========================================================
 
 let settings = JSON.parse(localStorage.getItem('appSettings')) || {
   general: { language: 'English', timezone: 'GMT (UTC+0)', dateFormat: 'MM/DD/YYYY', currency: 'GHS', numberFormat: '1,234.56' },
@@ -12,82 +12,91 @@ let settings = JSON.parse(localStorage.getItem('appSettings')) || {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDarkMode();
+  loadSettings();
 
+  // Sync with GlobalSettings if available
   if (window.GlobalSettings) {
     settings = window.GlobalSettings.settings;
+    loadSettings(); // Reload with synced settings
   }
-
-  loadSettings();
 });
 
 function loadSettings() {
-  // Load invoice/receipt settings (existing code preserved)
+  // Load Invoice Settings
   const invoicePrefix = document.getElementById('invoicePrefix');
   if (invoicePrefix && settings.invoice) invoicePrefix.value = settings.invoice.prefix || 'INV';
 
-  // ... all your existing loadSettings code ...
+  const invoiceNumberFormat = document.getElementById('invoiceNumberFormat');
+  if (invoiceNumberFormat && settings.invoice) invoiceNumberFormat.value = settings.invoice.numberFormat || 'INV-2025-001';
+
+  const invoicePaymentTerms = document.getElementById('invoicePaymentTerms');
+  if (invoicePaymentTerms && settings.invoice) invoicePaymentTerms.value = settings.invoice.paymentTerms || 'Net 30';
+
+  const invoiceTaxRate = document.getElementById('invoiceTaxRate');
+  if (invoiceTaxRate && settings.invoice) invoiceTaxRate.value = settings.invoice.taxRate || 15;
+
+  const invoiceDueDays = document.getElementById('invoiceDueDays');
+  if (invoiceDueDays && settings.invoice) invoiceDueDays.value = settings.invoice.dueDays || 30;
+
+  const invoiceAutoSend = document.getElementById('invoiceAutoSend');
+  if (invoiceAutoSend && settings.invoice) invoiceAutoSend.checked = settings.invoice.autoSend === true;
+
+  // Load Receipt Settings
+  const receiptPrefix = document.getElementById('receiptPrefix');
+  if (receiptPrefix && settings.receipt) receiptPrefix.value = settings.receipt.prefix || 'REC';
+
+  const receiptNumberFormat = document.getElementById('receiptNumberFormat');
+  if (receiptNumberFormat && settings.receipt) receiptNumberFormat.value = settings.receipt.numberFormat || 'REC-2025-001';
+
+  const receiptFooterNote = document.getElementById('receiptFooterNote');
+  if (receiptFooterNote && settings.receipt) receiptFooterNote.value = settings.receipt.footerNote || 'Payment received with thanks!';
+
+  const receiptPrintCopies = document.getElementById('receiptPrintCopies');
+  if (receiptPrintCopies && settings.receipt) receiptPrintCopies.value = settings.receipt.printCopies || 1;
+
+  const receiptShowPaymentMethod = document.getElementById('receiptShowPaymentMethod');
+  if (receiptShowPaymentMethod && settings.receipt) receiptShowPaymentMethod.checked = settings.receipt.showPaymentMethod !== false;
+
+  const receiptShowTax = document.getElementById('receiptShowTax');
+  if (receiptShowTax && settings.receipt) receiptShowTax.checked = settings.receipt.showTax !== false;
+
+  const receiptAutoNumber = document.getElementById('receiptAutoNumber');
+  if (receiptAutoNumber && settings.receipt) receiptAutoNumber.checked = settings.receipt.autoNumber !== false;
+
+  const receiptAutoSend = document.getElementById('receiptAutoSend');
+  if (receiptAutoSend && settings.receipt) receiptAutoSend.checked = settings.receipt.autoSend === true;
 }
 
-function saveInvoiceSettings() {
-  if (!settings.invoice) settings.invoice = {};
-
-  // SANITIZE all text inputs
-  settings.invoice.prefix = IRSanitizer.sanitizeText(document.getElementById('invoicePrefix').value, 10);
-  settings.invoice.numberFormat = IRSanitizer.sanitizeText(document.getElementById('invoiceNumberFormat').value, 50);
-  settings.invoice.paymentTerms = IRSanitizer.sanitizeText(document.getElementById('invoicePaymentTerms').value, 50);
-  settings.invoice.taxRate = IRSanitizer.sanitizeNumber(document.getElementById('invoiceTaxRate').value, 0, 100);
-  settings.invoice.dueDays = IRSanitizer.sanitizeInteger(document.getElementById('invoiceDueDays').value, 1, 365);
-  settings.invoice.autoSend = document.getElementById('invoiceAutoSend').checked;
-
-  if (window.GlobalSettings) {
-    window.GlobalSettings.update('invoice', settings.invoice);
-  }
-
-  localStorage.setItem('appSettings', JSON.stringify(settings));
-  showToast('Invoice settings saved and applied!', 'success');
-}
-
-function saveReceiptSettings() {
-  if (!settings.receipt) settings.receipt = {};
-
-  // SANITIZE all text inputs
-  settings.receipt.prefix = IRSanitizer.sanitizeText(document.getElementById('receiptPrefix').value, 10);
-  settings.receipt.numberFormat = IRSanitizer.sanitizeText(document.getElementById('receiptNumberFormat').value, 50);
-  settings.receipt.footerNote = IRSanitizer.sanitizeText(document.getElementById('receiptFooterNote').value, 500);
-  settings.receipt.printCopies = IRSanitizer.sanitizeInteger(document.getElementById('receiptPrintCopies').value, 1, 3);
-  settings.receipt.showPaymentMethod = document.getElementById('receiptShowPaymentMethod').checked;
-  settings.receipt.showTax = document.getElementById('receiptShowTax').checked;
-  settings.receipt.autoNumber = document.getElementById('receiptAutoNumber').checked;
-  settings.receipt.autoSend = document.getElementById('receiptAutoSend').checked;
-
-  if (window.GlobalSettings) {
-    window.GlobalSettings.update('receipt', settings.receipt);
-  }
-
-  localStorage.setItem('appSettings', JSON.stringify(settings));
-  showToast('Receipt settings saved and applied!', 'success');
+function showSection(section) {
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('section-' + section).classList.add('active');
+  event.target.closest('.settings-nav-item').classList.add('active');
 }
 
 function saveGeneralSettings() {
+  // Collect general settings
   const generalSettings = {
     language: document.querySelector('#section-general select.setting-select')?.value || 'English',
     timezone: document.querySelectorAll('#section-general select.setting-select')[1]?.value || 'GMT (UTC+0)',
     dateFormat: document.querySelectorAll('#section-general select.setting-select')[2]?.value || 'MM/DD/YYYY',
-    currency: IRSanitizer.sanitizeCurrency(document.querySelectorAll('#section-general select.setting-select')[3]?.value),
+    currency: document.querySelectorAll('#section-general select.setting-select')[3]?.value || 'GHS',
     numberFormat: document.querySelectorAll('#section-general select.setting-select')[4]?.value || '1,234.56'
   };
 
+  // Update local settings
   settings.general = generalSettings;
 
+  // Update GlobalSettings if available
   if (window.GlobalSettings) {
     window.GlobalSettings.update('general', generalSettings);
   }
 
+  // Save to localStorage
   localStorage.setItem('appSettings', JSON.stringify(settings));
+
   showToast('General settings saved and applied!', 'success');
 }
-
-// Rest of your existing functions (setTheme, setColor, exportAllData, etc.) remain unchanged
 
 function saveInvoiceSettings() {
   if (!settings.invoice) settings.invoice = {};
@@ -301,46 +310,8 @@ function toggleUserMenu() {
   document.getElementById('userDropdown')?.classList.toggle('show');
 }
 
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  const isDark = document.body.classList.contains('dark-mode');
-  btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-  localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-}
 
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    const themeBtn = document.getElementById('themeBtn');
-    if (themeBtn) {
-      themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-    }
-  }
-}
 
-function handleLogout() {
-  if (confirm('Sign out?')) {
-    localStorage.removeItem('currentUser');
-    window.location.href = '/login.html';
-  }
-}
-
-function showToast(msg, type = 'info') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
 
 // Add settings-specific styles
 const style = document.createElement('style');

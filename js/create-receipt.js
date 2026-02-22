@@ -1,26 +1,32 @@
-// Create Receipt Page JavaScript - WITH SANITIZER
-// ================================================
-
+// Create Receipt Page JavaScript - Enterprise Edition
+// ====================================================
 let itemCounter = 0;
 let currentCurrencySymbol = '₵';
-let selectedCustomerId = null;
+let selectedClientId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   initializeReceiptForm();
-  loadCustomers();
+  loadClients();
   loadReceiptFooterNote();
-  setupRealTimeValidation();
   updateBadgeCounts();
 });
 
+// ===== INITIALIZATION =====
 function initializeReceiptForm() {
+  // Set today's date
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('paymentDate').value = today;
 
+  // Generate receipt number
   generateReceiptNumber();
+
+  // Add first item
   addReceiptItem();
+
+  // Load company info from settings
   loadCompanyInfo();
 
+  // Set default currency from settings
   const settings = window.GlobalSettings?.settings?.general || {};
   if (settings.currency) {
     document.getElementById('currency').value = settings.currency;
@@ -35,6 +41,7 @@ function generateReceiptNumber() {
 
 function loadCompanyInfo() {
   const settings = window.GlobalSettings?.settings?.general || {};
+  // Company info will be used in PDF generation
 }
 
 function loadReceiptFooterNote() {
@@ -46,131 +53,93 @@ function loadReceiptFooterNote() {
   }
 }
 
-function loadCustomers() {
-  const customers = window.DataManager?.getClients() || [];
-  const select = document.getElementById('customerSelect');
+function loadClients() {
+  const clients = window.DataManager?.getClients() || [];
+  const select = document.getElementById('clientSelect');
+  select.innerHTML = '<option value="">-- Select a client --</option>';
 
-  select.innerHTML = '<option value="">-- Select a customer --</option>';
-
-  customers.forEach(customer => {
+  clients.forEach(client => {
     const option = document.createElement('option');
-    option.value = customer.id;
-    option.textContent = `${customer.name}${customer.company ? ` (${customer.company})` : ''}`;
+    option.value = client.id;
+    option.textContent = `${client.name}${client.company ? ` (${client.company})` : ''}`;
     select.appendChild(option);
   });
 }
 
-function loadCustomerData() {
-  const customerSelect = document.getElementById('customerSelect');
-  const customerId = customerSelect.value;
+function loadClientData() {
+  const clientSelect = document.getElementById('clientSelect');
+  const clientId = clientSelect.value;
 
-  if (!customerId) {
-    clearCustomerData();
+  if (!clientId) {
+    clearClientData();
     return;
   }
 
-  const customer = window.DataManager?.getClientById(customerId);
-  if (!customer) return;
+  const client = window.DataManager?.getClientById(clientId);
+  if (!client) return;
 
-  selectedCustomerId = customerId;
-  document.getElementById('customerName').value = customer.name;
-  document.getElementById('customerCompany').value = customer.company || '';
-  document.getElementById('customerEmail').value = customer.email || '';
-  document.getElementById('customerPhone').value = customer.phone;
+  selectedClientId = clientId;
+  document.getElementById('clientName').value   = client.name;
+  document.getElementById('clientCompany').value = client.company || '';
+  document.getElementById('clientEmail').value  = client.email || '';
+  document.getElementById('clientPhone').value  = client.phone;
 }
 
-function clearCustomerData() {
-  selectedCustomerId = null;
-  document.getElementById('customerName').value = '';
-  document.getElementById('customerCompany').value = '';
-  document.getElementById('customerEmail').value = '';
-  document.getElementById('customerPhone').value = '';
+function clearClientData() {
+  selectedClientId = null;
+  document.getElementById('clientName').value   = '';
+  document.getElementById('clientCompany').value = '';
+  document.getElementById('clientEmail').value  = '';
+  document.getElementById('clientPhone').value  = '';
 }
 
-// ===== REAL-TIME VALIDATION (SANITIZER) =====
-
-function setupRealTimeValidation() {
-  // Email validation
-  document.getElementById('customerEmail')?.addEventListener('blur', function() {
-    const email = this.value.trim();
-    if (email && !IRSanitizer.isValidEmail(email)) {
-      this.classList.add('invalid');
-      showToast('Invalid email format', 'warning');
-    } else {
-      this.classList.remove('invalid');
-    }
-  });
-
-  // Phone validation
-  document.getElementById('customerPhone')?.addEventListener('blur', function() {
-    const phone = this.value.trim();
-    if (phone && !IRSanitizer.isValidPhone(phone)) {
-      this.classList.add('invalid');
-      showToast('Invalid phone number', 'warning');
-    } else {
-      this.classList.remove('invalid');
-    }
-  });
-
-  // Price auto-formatting
-  document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('item-price')) {
-      const original = e.target.value;
-      const cleaned = IRSanitizer.sanitizePrice(original);
-      if (original !== cleaned.toString()) {
-        e.target.value = cleaned.toFixed(2);
-      }
-    }
-  });
+// ===== CLIENT MODAL =====
+function openAddClientModal() {
+  document.getElementById('addClientModal').style.display = 'flex';
+  document.getElementById('newClientName').focus();
 }
 
-// ===== CUSTOMER MODAL (WITH SANITIZER) =====
-
-function openAddCustomerModal() {
-  document.getElementById('addCustomerModal').style.display = 'flex';
-  document.getElementById('newCustomerName').focus();
+function closeAddClientModal() {
+  document.getElementById('addClientModal').style.display = 'none';
+  document.getElementById('addClientForm').reset();
 }
 
-function closeAddCustomerModal() {
-  document.getElementById('addCustomerModal').style.display = 'none';
-  document.getElementById('addCustomerForm').reset();
-}
+function saveNewClient() {
+  const name    = document.getElementById('newClientName').value.trim();
+  const company = document.getElementById('newClientCompany').value.trim();
+  const email   = document.getElementById('newClientEmail').value.trim();
+  const phone   = document.getElementById('newClientPhone').value.trim();
+  const address = document.getElementById('newClientAddress').value.trim();
 
-function saveNewCustomer() {
-  // Collect raw data
-  const rawCustomerData = {
-    name: document.getElementById('newCustomerName').value,
-    company: document.getElementById('newCustomerCompany').value,
-    email: document.getElementById('newCustomerEmail').value,
-    phone: document.getElementById('newCustomerPhone').value,
-    address: document.getElementById('newCustomerAddress').value
-  };
-
-  // Sanitize
-  const cleanCustomer = IRSanitizer.sanitizeClient(rawCustomerData);
-
-  // Validate (auto shows toast!)
-  const validation = IRSanitizer.validateClient(cleanCustomer);
-  if (!validation.valid) {
-    return; // Toast already shown
+  if (!name || !phone) {
+    showToast('Please fill all required fields', 'error');
+    return;
   }
 
   try {
-    const newCustomer = window.DataManager.createClient(cleanCustomer);
-    showToast('Customer added successfully!', 'success');
-    closeAddCustomerModal();
-    loadCustomers();
+    const newClient = window.DataManager.createClient({
+      name,
+      company,
+      email,
+      phone,
+      address
+    });
 
-    document.getElementById('customerSelect').value = newCustomer.id;
-    loadCustomerData();
+    showToast('Client added successfully!', 'success');
+    closeAddClientModal();
+    loadClients();
+
+    // Auto-select the new client
+    document.getElementById('clientSelect').value = newClient.id;
+    loadClientData();
+
   } catch (error) {
-    showToast('Failed to add customer', 'error');
+    showToast('Failed to add client', 'error');
     console.error(error);
   }
 }
 
 // ===== ITEMS MANAGEMENT =====
-
 function addReceiptItem() {
   itemCounter++;
   const tbody = document.getElementById('itemsTableBody');
@@ -207,6 +176,7 @@ function removeReceiptItem(id) {
     row.remove();
     calculateTotals();
 
+    // Ensure at least one item row exists
     const tbody = document.getElementById('itemsTableBody');
     if (tbody.children.length === 0) {
       addReceiptItem();
@@ -215,14 +185,14 @@ function removeReceiptItem(id) {
 }
 
 // ===== CALCULATIONS =====
-
 function calculateTotals() {
   let subtotal = 0;
 
+  // Calculate subtotal from items
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
-    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
+    const qty   = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+    const price = parseFloat(row.querySelector('.item-price')?.value)   || 0;
     const amount = qty * price;
 
     const amountSpan = row.querySelector('.item-amount');
@@ -233,11 +203,13 @@ function calculateTotals() {
     subtotal += amount;
   });
 
-  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  // Calculate tax
+  const taxRate  = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
 
+  // Calculate discount
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
-  const discountType = document.getElementById('discountType').value;
+  const discountType  = document.getElementById('discountType').value;
   let discountAmount = 0;
 
   if (discountType === 'percent') {
@@ -246,12 +218,14 @@ function calculateTotals() {
     discountAmount = Math.min(discountInput, subtotal + taxAmount);
   }
 
+  // Calculate total
   const total = subtotal + taxAmount - discountAmount;
 
+  // Update display
   document.getElementById('subtotalAmount').textContent = `${currentCurrencySymbol}${subtotal.toFixed(2)}`;
-  document.getElementById('taxAmount').textContent = `${currentCurrencySymbol}${taxAmount.toFixed(2)}`;
+  document.getElementById('taxAmount').textContent     = `${currentCurrencySymbol}${taxAmount.toFixed(2)}`;
   document.getElementById('discountAmount').textContent = `-${currentCurrencySymbol}${discountAmount.toFixed(2)}`;
-  document.getElementById('totalAmount').textContent = `${currentCurrencySymbol}${total.toFixed(2)}`;
+  document.getElementById('totalAmount').textContent    = `${currentCurrencySymbol}${total.toFixed(2)}`;
 }
 
 function updateCurrency() {
@@ -268,24 +242,29 @@ function updateCurrency() {
   calculateTotals();
 }
 
-// ===== FORM SUBMISSION (WITH SANITIZER) =====
-
+// ===== FORM SUBMISSION =====
 document.getElementById('createReceiptForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
   saveReceipt();
 });
 
 function saveReceipt(generatePDF = false) {
+  // Validate form
+  if (!validateReceiptForm()) {
+    return;
+  }
+
   // Collect items
   const items = [];
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
-    const item = {
-      name: row.querySelector('.item-description')?.value,
-      qty: row.querySelector('.item-quantity')?.value,
-      price: row.querySelector('.item-price')?.value
-    };
-    if (item.name) items.push(item);
+    const description = row.querySelector('.item-description')?.value;
+    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
+
+    if (description && qty > 0 && price >= 0) {
+      items.push({ name: description, qty, price });
+    }
   });
 
   if (items.length === 0) {
@@ -294,31 +273,32 @@ function saveReceipt(generatePDF = false) {
   }
 
   // Calculate totals
-  const subtotal = items.reduce((sum, item) =>
-    sum + (parseFloat(item.qty) * parseFloat(item.price)), 0
-  );
-  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+  const taxRate  = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
+
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
-  const discountType = document.getElementById('discountType').value;
+  const discountType  = document.getElementById('discountType').value;
   const discountAmount = discountType === 'percent'
     ? subtotal * (discountInput / 100)
     : Math.min(discountInput, subtotal + taxAmount);
+
   const total = subtotal + taxAmount - discountAmount;
 
+  // Get settings for company info
   const settings = window.GlobalSettings?.settings?.general || {};
   const receiptSettings = window.GlobalSettings?.settings?.receipt || {};
 
-  // Build raw receipt data
-  const rawReceiptData = {
+  // Create receipt data
+  const receiptData = {
     number: document.getElementById('receiptNumber').value,
-    customerId: selectedCustomerId,
-    customerName: document.getElementById('customerName').value,
-    customerEmail: document.getElementById('customerEmail').value,
-    customerPhone: document.getElementById('customerPhone').value,
-    companyName: settings.companyName || 'My Company',
-    companyContact: settings.companyPhone || '',
-    companyLogo: settings.companyLogo || '',
+    clientId: selectedClientId,
+    clientName:  document.getElementById('clientName').value,
+    clientEmail: document.getElementById('clientEmail').value,
+    clientPhone: document.getElementById('clientPhone').value,
+    companyName:    settings.companyName    || 'My Company',
+    companyContact: settings.companyPhone   || '',
+    companyLogo:    settings.companyLogo    || '',
     date: document.getElementById('paymentDate').value,
     items,
     subtotal,
@@ -327,7 +307,7 @@ function saveReceipt(generatePDF = false) {
     discountAmount,
     total,
     paymentMethod: document.getElementById('paymentMethod').value,
-    status: 'paid',
+    status: 'paid', // Always paid for receipts
     currency: document.getElementById('currency').value,
     currencySymbol: currentCurrencySymbol,
     notes: document.getElementById('receiptNotes').value,
@@ -335,18 +315,8 @@ function saveReceipt(generatePDF = false) {
     footerNote: receiptSettings.footerNote || 'Payment received with thanks!'
   };
 
-  // SANITIZE the complete receipt
-  const cleanReceipt = IRSanitizer.sanitizeReceipt(rawReceiptData);
-
-  // VALIDATE (auto shows toast on error!)
-  const validation = IRSanitizer.validateReceipt(cleanReceipt);
-  if (!validation.valid) {
-    return; // Toast already shown by sanitizer!
-  }
-
-  // Save clean data
   try {
-    const savedReceipt = window.DataManager.createReceipt(cleanReceipt);
+    const savedReceipt = window.DataManager.createReceipt(receiptData);
     showToast('Receipt saved successfully!', 'success');
 
     if (generatePDF) {
@@ -356,6 +326,7 @@ function saveReceipt(generatePDF = false) {
     setTimeout(() => {
       window.location.href = '/receipts.html';
     }, generatePDF ? 2500 : 1500);
+
   } catch (error) {
     showToast('Failed to save receipt', 'error');
     console.error(error);
@@ -367,13 +338,13 @@ function saveAndGeneratePDF() {
 }
 
 function validateReceiptForm() {
-  const customerName = document.getElementById('customerName').value.trim();
-  const customerPhone = document.getElementById('customerPhone').value.trim();
+  const clientName = document.getElementById('clientName').value.trim();
+  const clientPhone = document.getElementById('clientPhone').value.trim();
   const paymentDate = document.getElementById('paymentDate').value;
   const paymentMethod = document.getElementById('paymentMethod').value;
 
-  if (!customerName || !customerPhone) {
-    showToast('Please fill all required customer fields', 'error');
+  if (!clientName || !clientPhone) {
+    showToast('Please fill all required client fields', 'error');
     return false;
   }
   if (!paymentDate) {
@@ -389,7 +360,6 @@ function validateReceiptForm() {
 }
 
 // ===== PDF GENERATION =====
-
 function generateReceiptPDF(receipt) {
   showToast('Generating PDF...', 'info');
 
@@ -457,9 +427,9 @@ function buildReceiptPDFHTML(receipt) {
 
       <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
         <h3 style="margin: 0 0 10px 0;">Received From:</h3>
-        <p style="margin: 0; font-weight: bold;">${receipt.customerName}</p>
-        ${receipt.customerEmail ? `<p style="margin: 0;">Email: ${receipt.customerEmail}</p>` : ''}
-        <p style="margin: 0;">Phone: ${receipt.customerPhone}</p>
+        <p style="margin: 0; font-weight: bold;">${receipt.clientName}</p>
+        ${receipt.clientEmail ? `<p style="margin: 0;">Email: ${receipt.clientEmail}</p>` : ''}
+        <p style="margin: 0;">Phone: ${receipt.clientPhone}</p>
       </div>
 
       ${showPaymentMethod ? `
@@ -513,6 +483,64 @@ function buildReceiptPDFHTML(receipt) {
   `;
 }
 
+function generatePDFFromPreview() {
+  closePreview();
+  const receiptData = collectReceiptData();
+  generateReceiptPDF(receiptData);
+}
+
+function collectReceiptData() {
+  const items = [];
+  const rows = document.querySelectorAll('#itemsTableBody tr');
+
+  rows.forEach(row => {
+    const description = row.querySelector('.item-description')?.value;
+    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
+
+    if (description && qty > 0 && price >= 0) {
+      items.push({ name: description, qty, price });
+    }
+  });
+
+  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+  const taxAmount = subtotal * (taxRate / 100);
+
+  const discountInput = parseFloat(document.getElementById('discount').value) || 0;
+  const discountType = document.getElementById('discountType').value;
+  const discountAmount = discountType === 'percent'
+    ? subtotal * (discountInput / 100)
+    : Math.min(discountInput, subtotal + taxAmount);
+
+  const total = subtotal + taxAmount - discountAmount;
+
+  const settings = window.GlobalSettings?.settings?.general || {};
+  const receiptSettings = window.GlobalSettings?.settings?.receipt || {};
+
+  return {
+    number: document.getElementById('receiptNumber').value,
+    clientName:  document.getElementById('clientName').value,
+    clientEmail: document.getElementById('clientEmail').value,
+    clientPhone: document.getElementById('clientPhone').value,
+    companyName:    settings.companyName    || 'My Company',
+    companyContact: settings.companyPhone   || '',
+    date: document.getElementById('paymentDate').value,
+    items,
+    subtotal,
+    taxRate,
+    taxAmount,
+    discountAmount,
+    total,
+    paymentMethod: document.getElementById('paymentMethod').value,
+    currencySymbol: currentCurrencySymbol,
+    notes: document.getElementById('receiptNotes').value,
+    transactionRef: document.getElementById('transactionRef').value,
+    footerNote: receiptSettings.footerNote || 'Payment received with thanks!'
+  };
+}
+
+// ===== PREVIEW =====
 function previewReceipt() {
   if (!validateReceiptForm()) {
     showToast('Please fill all required fields', 'error');
@@ -529,64 +557,7 @@ function closePreview() {
   document.getElementById('previewModal').style.display = 'none';
 }
 
-function collectReceiptData() {
-  const items = [];
-  const rows = document.querySelectorAll('#itemsTableBody tr');
-
-  rows.forEach(row => {
-    const item = {
-      name: row.querySelector('.item-description')?.value,
-      qty: parseFloat(row.querySelector('.item-quantity')?.value) || 0,
-      price: parseFloat(row.querySelector('.item-price')?.value) || 0
-    };
-    if (item.name && item.qty > 0 && item.price >= 0) {
-      items.push(item);
-    }
-  });
-
-  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
-  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
-  const taxAmount = subtotal * (taxRate / 100);
-  const discountInput = parseFloat(document.getElementById('discount').value) || 0;
-  const discountType = document.getElementById('discountType').value;
-  const discountAmount = discountType === 'percent'
-    ? subtotal * (discountInput / 100)
-    : Math.min(discountInput, subtotal + taxAmount);
-  const total = subtotal + taxAmount - discountAmount;
-
-  const settings = window.GlobalSettings?.settings?.general || {};
-  const receiptSettings = window.GlobalSettings?.settings?.receipt || {};
-
-  return {
-    number: document.getElementById('receiptNumber').value,
-    customerName: document.getElementById('customerName').value,
-    customerEmail: document.getElementById('customerEmail').value,
-    customerPhone: document.getElementById('customerPhone').value,
-    companyName: settings.companyName || 'My Company',
-    companyContact: settings.companyPhone || '',
-    date: document.getElementById('paymentDate').value,
-    items,
-    subtotal,
-    taxRate,
-    taxAmount,
-    discountAmount,
-    total,
-    paymentMethod: document.getElementById('paymentMethod').value,
-    currencySymbol: currentCurrencySymbol,
-    notes: document.getElementById('receiptNotes').value,
-    transactionRef: document.getElementById('transactionRef').value,
-    footerNote: receiptSettings.footerNote || 'Payment received with thanks!'
-  };
-}
-
-function generatePDFFromPreview() {
-  closePreview();
-  const receiptData = collectReceiptData();
-  generateReceiptPDF(receiptData);
-}
-
 // ===== UTILITY FUNCTIONS =====
-
 function resetReceiptForm() {
   if (!confirm('Are you sure you want to reset the form? All data will be lost.')) {
     return;
@@ -626,13 +597,47 @@ function updateBadgeCounts() {
 // Add receipt-specific styles
 const style = document.createElement('style');
 style.textContent = `
-  .form-input.invalid,
-  .form-select.invalid {
-    border-color: var(--error) !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
-  .form-input.valid {
-    border-color: var(--success) !important;
+  .page-title-group h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-subtitle {
+    color: var(--text-secondary);
+  }
+  .page-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  .btn-secondary {
+    padding: 0.9rem 1.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    background: var(--bg-tertiary);
   }
   .receipt-form {
     display: flex;
