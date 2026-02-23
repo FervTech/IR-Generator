@@ -8,7 +8,6 @@ class DataManager {
   }
 
   // ===== INITIALIZATION =====
-
   initializeStorage() {
     // Ensure all storage keys exist
     if (!localStorage.getItem('invoices')) {
@@ -23,12 +22,10 @@ class DataManager {
   }
 
   // ===== INVOICE OPERATIONS =====
-
   createInvoice(invoiceData) {
     try {
       const invoices = this.getInvoices();
       const settings = window.GlobalSettings || { settings: {} };
-
       const newInvoice = {
         id: `INV${Date.now()}`,
         number: this.generateInvoiceNumber(),
@@ -55,18 +52,13 @@ class DataManager {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
-
       invoices.push(newInvoice);
       localStorage.setItem('invoices', JSON.stringify(invoices));
 
       // Update client statistics
       if (newInvoice.clientId) {
-        this.updateClientStats(newInvoice.clientId, {
-          totalInvoices: 1,
-          lastInvoiceDate: newInvoice.issueDate
-        });
+        this.updateClientStats(newInvoice.clientId, { totalInvoices: 1, lastInvoiceDate: newInvoice.issueDate });
       }
-
       this.broadcastDataChange('invoice_created', newInvoice);
       return newInvoice;
     } catch (error) {
@@ -93,17 +85,10 @@ class DataManager {
     try {
       const invoices = this.getInvoices();
       const index = invoices.findIndex(inv => inv.id === id);
-
       if (index === -1) {
         throw new Error('Invoice not found');
       }
-
-      invoices[index] = {
-        ...invoices[index],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
-
+      invoices[index] = { ...invoices[index], ...updates, updatedAt: new Date().toISOString() };
       localStorage.setItem('invoices', JSON.stringify(invoices));
       this.broadcastDataChange('invoice_updated', invoices[index]);
       return invoices[index];
@@ -133,10 +118,7 @@ class DataManager {
     const year = new Date().getFullYear();
 
     // Find the highest number used this year
-    const yearInvoices = invoices.filter(inv =>
-      inv.number && inv.number.includes(year.toString())
-    );
-
+    const yearInvoices = invoices.filter(inv => inv.number && inv.number.includes(year.toString()));
     const lastNumber = yearInvoices.length > 0
       ? Math.max(...yearInvoices.map(inv => {
         const match = inv.number?.match(/\d+$/);
@@ -146,24 +128,21 @@ class DataManager {
 
     const nextNumber = lastNumber + 1;
     const paddedNumber = String(nextNumber).padStart(3, '0');
-
     return `${prefix}-${year}-${paddedNumber}`;
   }
 
   // ===== RECEIPT OPERATIONS =====
-
   createReceipt(receiptData) {
     try {
       const receipts = this.getReceipts();
-
       const newReceipt = {
         id: `REC${Date.now()}`,
         number: this.generateReceiptNumber(),
         invoiceId: receiptData.invoiceId || null,
-        customerId: receiptData.customerId || '',
-        customerName: receiptData.customerName || '',
-        customerEmail: receiptData.customerEmail || '',
-        customerPhone: receiptData.customerPhone || '',
+        clientId: receiptData.clientId || '',
+        clientName: receiptData.clientName || '',
+        clientEmail: receiptData.clientEmail || '',
+        clientPhone: receiptData.clientPhone || '',
         companyName: receiptData.companyName || '',
         companyContact: receiptData.companyContact || '',
         companyLogo: receiptData.companyLogo || '',
@@ -181,15 +160,12 @@ class DataManager {
         notes: receiptData.notes || '',
         createdAt: new Date().toISOString()
       };
-
       receipts.push(newReceipt);
       localStorage.setItem('receipts', JSON.stringify(receipts));
 
       // Update client statistics
-      if (newReceipt.customerId) {
-        this.updateClientStats(newReceipt.customerId, {
-          totalSpent: newReceipt.total
-        });
+      if (newReceipt.clientId) {
+        this.updateClientStats(newReceipt.clientId, { totalSpent: newReceipt.total });
       }
 
       // Mark related invoice as paid if exists
@@ -223,17 +199,10 @@ class DataManager {
     try {
       const receipts = this.getReceipts();
       const index = receipts.findIndex(rec => rec.id === id);
-
       if (index === -1) {
         throw new Error('Receipt not found');
       }
-
-      receipts[index] = {
-        ...receipts[index],
-        ...updates,
-        updatedAt: new Date().toISOString()
-      };
-
+      receipts[index] = { ...receipts[index], ...updates, updatedAt: new Date().toISOString() };
       localStorage.setItem('receipts', JSON.stringify(receipts));
       this.broadcastDataChange('receipt_updated', receipts[index]);
       return receipts[index];
@@ -262,10 +231,7 @@ class DataManager {
     const prefix = settings.prefix || 'REC';
     const year = new Date().getFullYear();
 
-    const yearReceipts = receipts.filter(rec =>
-      rec.number && rec.number.includes(year.toString())
-    );
-
+    const yearReceipts = receipts.filter(rec => rec.number && rec.number.includes(year.toString()));
     const lastNumber = yearReceipts.length > 0
       ? Math.max(...yearReceipts.map(rec => {
         const match = rec.number?.match(/\d+$/);
@@ -275,16 +241,13 @@ class DataManager {
 
     const nextNumber = lastNumber + 1;
     const paddedNumber = String(nextNumber).padStart(3, '0');
-
     return `${prefix}-${year}-${paddedNumber}`;
   }
 
   // ===== CLIENT OPERATIONS =====
-
   createClient(clientData) {
     try {
       const clients = this.getClients();
-
       const newClient = {
         id: `CLI${Date.now()}`,
         name: clientData.name || '',
@@ -302,7 +265,6 @@ class DataManager {
         lastInvoiceDate: null,
         notes: clientData.notes || ''
       };
-
       clients.push(newClient);
       localStorage.setItem('clients', JSON.stringify(clients));
       this.broadcastDataChange('client_created', newClient);
@@ -331,16 +293,10 @@ class DataManager {
     try {
       const clients = this.getClients();
       const index = clients.findIndex(client => client.id === id);
-
       if (index === -1) {
         throw new Error('Client not found');
       }
-
-      clients[index] = {
-        ...clients[index],
-        ...updates
-      };
-
+      clients[index] = { ...clients[index], ...updates };
       localStorage.setItem('clients', JSON.stringify(clients));
       this.broadcastDataChange('client_updated', clients[index]);
       return clients[index];
@@ -367,17 +323,14 @@ class DataManager {
     try {
       const clients = this.getClients();
       const client = clients.find(c => c.id === clientId);
-
       if (!client) return;
 
       if (stats.totalInvoices) {
         client.totalInvoices = (client.totalInvoices || 0) + stats.totalInvoices;
       }
-
       if (stats.totalSpent) {
         client.totalSpent = (client.totalSpent || 0) + stats.totalSpent;
       }
-
       if (stats.lastInvoiceDate) {
         client.lastInvoiceDate = stats.lastInvoiceDate;
       }
@@ -389,7 +342,6 @@ class DataManager {
   }
 
   // ===== UTILITY FUNCTIONS =====
-
   calculateDueDate() {
     const settings = window.GlobalSettings?.settings?.invoice || {};
     const dueDays = settings.dueDays || 30;
@@ -399,13 +351,10 @@ class DataManager {
   }
 
   broadcastDataChange(event, data) {
-    window.dispatchEvent(new CustomEvent('dataChanged', {
-      detail: { event, data }
-    }));
+    window.dispatchEvent(new CustomEvent('dataChanged', { detail: { event, data } }));
   }
 
   // ===== STATISTICS =====
-
   getStatistics() {
     const invoices = this.getInvoices();
     const receipts = this.getReceipts();
@@ -440,8 +389,6 @@ window.DataManager = new DataManager();
 // Listen for storage changes from other tabs
 window.addEventListener('storage', (e) => {
   if (['invoices', 'receipts', 'clients'].includes(e.key)) {
-    window.dispatchEvent(new CustomEvent('dataChanged', {
-      detail: { event: `${e.key}_external_change`, data: null }
-    }));
+    window.dispatchEvent(new CustomEvent('dataChanged', { detail: { event: `${e.key}_external_change`, data: null } }));
   }
 });

@@ -203,10 +203,10 @@ class IRSanitizer {
       id: this.sanitizeText(receipt.id, 50),
       number: this.sanitizeDocumentNumber(receipt.number),
       invoiceId: this.sanitizeText(receipt.invoiceId || '', 50),
-      customerId: this.sanitizeText(receipt.customerId, 50),
-      customerName: this.sanitizePersonName(receipt.customerName),
-      customerEmail: this.sanitizeEmail(receipt.customerEmail),
-      customerPhone: this.sanitizePhone(receipt.customerPhone),
+      clientId: this.sanitizeText(receipt.clientId, 50),                  // ← fixed
+      clientName: this.sanitizePersonName(receipt.clientName),            // ← fixed
+      clientEmail: this.sanitizeEmail(receipt.clientEmail),               // ← fixed
+      clientPhone: this.sanitizePhone(receipt.clientPhone),               // ← fixed
       companyName: this.sanitizeCompanyName(receipt.companyName),
       companyContact: this.sanitizePhone(receipt.companyContact),
       date: this.sanitizeDate(receipt.date),
@@ -285,24 +285,31 @@ class IRSanitizer {
 
   static validateReceipt(receipt) {
     const errors = [];
-    if (!receipt.customerName || receipt.customerName.trim() === '') {
-      errors.push('Customer name is required');
+
+    if (!receipt.clientName || receipt.clientName.trim() === '') {
+      errors.push('Client name is required');
     }
-    if (!receipt.customerPhone) {
-      errors.push('Customer phone is required');
+
+    if (!receipt.clientPhone) {
+      errors.push('Client phone is required');
     }
-    if (receipt.customerPhone && !this.isValidPhone(receipt.customerPhone)) {
+
+    if (receipt.clientPhone && !this.isValidPhone(receipt.clientPhone)) {
       errors.push('Invalid phone format');
     }
+
     if (!receipt.date || !this.sanitizeDate(receipt.date)) {
       errors.push('Valid date is required');
     }
+
     if (!receipt.paymentMethod || receipt.paymentMethod.trim() === '') {
       errors.push('Payment method is required');
     }
+
     if (!Array.isArray(receipt.items) || receipt.items.length === 0) {
       errors.push('At least one item is required');
     }
+
     if (receipt.total <= 0) {
       errors.push('Total must be greater than 0');
     }
@@ -311,7 +318,7 @@ class IRSanitizer {
 
     if (!result.valid && typeof showToast === 'function') {
       const message = errors.join('\n');
-      showToast(message, 'error');  // ← default 3000ms
+      showToast(message, 'error'); // ← default 3000ms
     }
 
     return result;
