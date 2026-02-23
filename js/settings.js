@@ -1,6 +1,5 @@
-// Settings Page JavaScript
-// ========================================================
-
+// Settings Page JavaScript - WITH SANITIZER
+// ==========================================
 let settings = JSON.parse(localStorage.getItem('appSettings')) || {
   general: { language: 'English', timezone: 'GMT (UTC+0)', dateFormat: 'MM/DD/YYYY', currency: 'GHS', numberFormat: '1,234.56' },
   invoice: { prefix: 'INV', numberFormat: 'INV-2025-001', paymentTerms: 'Net 30', taxRate: 15, dueDays: 30, autoSend: false },
@@ -12,13 +11,10 @@ let settings = JSON.parse(localStorage.getItem('appSettings')) || {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupDarkMode();
-  loadSettings();
-
-  // Sync with GlobalSettings if available
   if (window.GlobalSettings) {
     settings = window.GlobalSettings.settings;
-    loadSettings(); // Reload with synced settings
   }
+  loadSettings();
 });
 
 function loadSettings() {
@@ -74,118 +70,76 @@ function showSection(section) {
   event.target.closest('.settings-nav-item').classList.add('active');
 }
 
-function saveGeneralSettings() {
-  // Collect general settings
-  const generalSettings = {
-    language: document.querySelector('#section-general select.setting-select')?.value || 'English',
-    timezone: document.querySelectorAll('#section-general select.setting-select')[1]?.value || 'GMT (UTC+0)',
-    dateFormat: document.querySelectorAll('#section-general select.setting-select')[2]?.value || 'MM/DD/YYYY',
-    currency: document.querySelectorAll('#section-general select.setting-select')[3]?.value || 'GHS',
-    numberFormat: document.querySelectorAll('#section-general select.setting-select')[4]?.value || '1,234.56'
-  };
-
-  // Update local settings
-  settings.general = generalSettings;
-
-  // Update GlobalSettings if available
-  if (window.GlobalSettings) {
-    window.GlobalSettings.update('general', generalSettings);
-  }
-
-  // Save to localStorage
-  localStorage.setItem('appSettings', JSON.stringify(settings));
-
-  showToast('General settings saved and applied!', 'success');
-}
 
 function saveInvoiceSettings() {
   if (!settings.invoice) settings.invoice = {};
 
-  // Collect invoice settings
-  const invoicePrefix = document.getElementById('invoicePrefix');
-  if (invoicePrefix) settings.invoice.prefix = invoicePrefix.value;
+  // SANITIZE all text inputs
+  settings.invoice.prefix = IRSanitizer.sanitizeText(document.getElementById('invoicePrefix').value, 10);
+  settings.invoice.numberFormat = IRSanitizer.sanitizeText(document.getElementById('invoiceNumberFormat').value, 50);
+  settings.invoice.paymentTerms = IRSanitizer.sanitizeText(document.getElementById('invoicePaymentTerms').value, 50);
+  settings.invoice.taxRate = IRSanitizer.sanitizeNumber(document.getElementById('invoiceTaxRate').value, 0, 100);
+  settings.invoice.dueDays = IRSanitizer.sanitizeInteger(document.getElementById('invoiceDueDays').value, 1, 365);
+  settings.invoice.autoSend = document.getElementById('invoiceAutoSend').checked;
 
-  const invoiceNumberFormat = document.getElementById('invoiceNumberFormat');
-  if (invoiceNumberFormat) settings.invoice.numberFormat = invoiceNumberFormat.value;
-
-  const invoicePaymentTerms = document.getElementById('invoicePaymentTerms');
-  if (invoicePaymentTerms) settings.invoice.paymentTerms = invoicePaymentTerms.value;
-
-  const invoiceTaxRate = document.getElementById('invoiceTaxRate');
-  if (invoiceTaxRate) settings.invoice.taxRate = parseFloat(invoiceTaxRate.value);
-
-  const invoiceDueDays = document.getElementById('invoiceDueDays');
-  if (invoiceDueDays) settings.invoice.dueDays = parseInt(invoiceDueDays.value);
-
-  const invoiceAutoSend = document.getElementById('invoiceAutoSend');
-  if (invoiceAutoSend) settings.invoice.autoSend = invoiceAutoSend.checked;
-
-  // Update GlobalSettings if available
   if (window.GlobalSettings) {
     window.GlobalSettings.update('invoice', settings.invoice);
   }
-
-  // Save to localStorage
   localStorage.setItem('appSettings', JSON.stringify(settings));
-
   showToast('Invoice settings saved and applied!', 'success');
 }
 
 function saveReceiptSettings() {
   if (!settings.receipt) settings.receipt = {};
 
-  // Collect receipt settings
-  const receiptPrefix = document.getElementById('receiptPrefix');
-  if (receiptPrefix) settings.receipt.prefix = receiptPrefix.value;
+  // SANITIZE all text inputs
+  settings.receipt.prefix = IRSanitizer.sanitizeText(document.getElementById('receiptPrefix').value, 10);
+  settings.receipt.numberFormat = IRSanitizer.sanitizeText(document.getElementById('receiptNumberFormat').value, 50);
+  settings.receipt.footerNote = IRSanitizer.sanitizeText(document.getElementById('receiptFooterNote').value, 500);
+  settings.receipt.printCopies = IRSanitizer.sanitizeInteger(document.getElementById('receiptPrintCopies').value, 1, 3);
+  settings.receipt.showPaymentMethod = document.getElementById('receiptShowPaymentMethod').checked;
+  settings.receipt.showTax = document.getElementById('receiptShowTax').checked;
+  settings.receipt.autoNumber = document.getElementById('receiptAutoNumber').checked;
+  settings.receipt.autoSend = document.getElementById('receiptAutoSend').checked;
 
-  const receiptNumberFormat = document.getElementById('receiptNumberFormat');
-  if (receiptNumberFormat) settings.receipt.numberFormat = receiptNumberFormat.value;
-
-  const receiptFooterNote = document.getElementById('receiptFooterNote');
-  if (receiptFooterNote) settings.receipt.footerNote = receiptFooterNote.value;
-
-  const receiptPrintCopies = document.getElementById('receiptPrintCopies');
-  if (receiptPrintCopies) settings.receipt.printCopies = parseInt(receiptPrintCopies.value);
-
-  const receiptShowPaymentMethod = document.getElementById('receiptShowPaymentMethod');
-  if (receiptShowPaymentMethod) settings.receipt.showPaymentMethod = receiptShowPaymentMethod.checked;
-
-  const receiptShowTax = document.getElementById('receiptShowTax');
-  if (receiptShowTax) settings.receipt.showTax = receiptShowTax.checked;
-
-  const receiptAutoNumber = document.getElementById('receiptAutoNumber');
-  if (receiptAutoNumber) settings.receipt.autoNumber = receiptAutoNumber.checked;
-
-  const receiptAutoSend = document.getElementById('receiptAutoSend');
-  if (receiptAutoSend) settings.receipt.autoSend = receiptAutoSend.checked;
-
-  // Update GlobalSettings if available
   if (window.GlobalSettings) {
     window.GlobalSettings.update('receipt', settings.receipt);
   }
-
-  // Save to localStorage
   localStorage.setItem('appSettings', JSON.stringify(settings));
-
   showToast('Receipt settings saved and applied!', 'success');
 }
 
+function saveGeneralSettings() {
+  const generalSettings = {
+    language: document.querySelector('#section-general select.setting-select')?.value || 'English',
+    timezone: document.querySelectorAll('#section-general select.setting-select')[1]?.value || 'GMT (UTC+0)',
+    dateFormat: document.querySelectorAll('#section-general select.setting-select')[2]?.value || 'MM/DD/YYYY',
+    currency: IRSanitizer.sanitizeCurrency(document.querySelectorAll('#section-general select.setting-select')[3]?.value),
+    numberFormat: document.querySelectorAll('#section-general select.setting-select')[4]?.value || '1,234.56'
+  };
+
+  settings.general = generalSettings;
+
+  if (window.GlobalSettings) {
+    window.GlobalSettings.update('general', generalSettings);
+  }
+  localStorage.setItem('appSettings', JSON.stringify(settings));
+  showToast('General settings saved and applied!', 'success');
+}
+
 function saveEmailSettings() {
-  // Update GlobalSettings if available
+  // Assuming email settings are updated elsewhere in the UI
   if (window.GlobalSettings) {
     window.GlobalSettings.update('email', settings.email);
   }
-
   localStorage.setItem('appSettings', JSON.stringify(settings));
   showToast('Email settings saved!', 'success');
 }
 
 function saveAppearance() {
-  // Update GlobalSettings if available
   if (window.GlobalSettings) {
     window.GlobalSettings.update('appearance', settings.appearance);
   }
-
   localStorage.setItem('appSettings', JSON.stringify(settings));
   showToast('Appearance settings saved!', 'success');
 }
@@ -210,13 +164,13 @@ function setTheme(theme) {
   if (window.GlobalSettings) {
     window.GlobalSettings.set('appearance', 'theme', theme);
   }
-
   showToast('Theme updated', 'success');
 }
 
 function setColor(color) {
   document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('active'));
   event.target.classList.add('active');
+
   document.documentElement.style.setProperty('--primary', color);
 
   // Update settings
@@ -224,7 +178,6 @@ function setColor(color) {
   if (window.GlobalSettings) {
     window.GlobalSettings.set('appearance', 'primaryColor', color);
   }
-
   showToast('Color scheme updated', 'success');
 }
 
@@ -240,7 +193,6 @@ function setFontSize(size) {
   if (window.GlobalSettings) {
     window.GlobalSettings.set('appearance', 'fontSize', size);
   }
-
   showToast('Font size updated', 'success');
 }
 
@@ -268,7 +220,6 @@ function exportAllData() {
       a.download = `ir-generator-backup-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
-
       showToast('Data exported successfully!', 'success');
     }, 1000);
   }
@@ -311,11 +262,85 @@ function toggleUserMenu() {
 }
 
 
-
+function showToast(msg, type = 'info') {
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
 
 // Add settings-specific styles
 const style = document.createElement('style');
 style.textContent = `
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .page-title-group h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .page-subtitle {
+    color: var(--text-secondary);
+  }
+  .page-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  .btn-secondary {
+    padding: 0.9rem 1.5rem;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    background: var(--bg-tertiary);
+  }
+  .btn-primary {
+    padding: 0.9rem 1.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all var(--transition-fast);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
 .settings-layout { display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
 .settings-sidebar { background: var(--bg-glass); border: 1px solid var(--border); border-radius: 16px; padding: 1rem; height: fit-content; position: sticky; top: 100px; }
 .settings-nav { display: flex; flex-direction: column; gap: 0.5rem; }

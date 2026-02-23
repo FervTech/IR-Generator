@@ -1,5 +1,5 @@
-// Create Receipt Page JavaScript - Enterprise Edition
-// ====================================================
+// Create Receipt Page JavaScript - WITH SANITIZER
+// ================================================
 let itemCounter = 0;
 let currentCurrencySymbol = '₵';
 let selectedClientId = null;
@@ -8,25 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeReceiptForm();
   loadClients();
   loadReceiptFooterNote();
+  setupRealTimeValidation();
   updateBadgeCounts();
 });
 
-// ===== INITIALIZATION =====
 function initializeReceiptForm() {
-  // Set today's date
   const today = new Date().toISOString().split('T')[0];
   document.getElementById('paymentDate').value = today;
-
-  // Generate receipt number
   generateReceiptNumber();
-
-  // Add first item
   addReceiptItem();
-
-  // Load company info from settings
   loadCompanyInfo();
-
-  // Set default currency from settings
   const settings = window.GlobalSettings?.settings?.general || {};
   if (settings.currency) {
     document.getElementById('currency').value = settings.currency;
@@ -41,7 +32,6 @@ function generateReceiptNumber() {
 
 function loadCompanyInfo() {
   const settings = window.GlobalSettings?.settings?.general || {};
-  // Company info will be used in PDF generation
 }
 
 function loadReceiptFooterNote() {
@@ -57,7 +47,6 @@ function loadClients() {
   const clients = window.DataManager?.getClients() || [];
   const select = document.getElementById('clientSelect');
   select.innerHTML = '<option value="">-- Select a client --</option>';
-
   clients.forEach(client => {
     const option = document.createElement('option');
     option.value = client.id;
@@ -69,31 +58,64 @@ function loadClients() {
 function loadClientData() {
   const clientSelect = document.getElementById('clientSelect');
   const clientId = clientSelect.value;
-
   if (!clientId) {
     clearClientData();
     return;
   }
-
   const client = window.DataManager?.getClientById(clientId);
   if (!client) return;
-
   selectedClientId = clientId;
-  document.getElementById('clientName').value   = client.name;
+  document.getElementById('clientName').value = client.name;
   document.getElementById('clientCompany').value = client.company || '';
-  document.getElementById('clientEmail').value  = client.email || '';
-  document.getElementById('clientPhone').value  = client.phone;
+  document.getElementById('clientEmail').value = client.email || '';
+  document.getElementById('clientPhone').value = client.phone;
 }
 
 function clearClientData() {
   selectedClientId = null;
-  document.getElementById('clientName').value   = '';
+  document.getElementById('clientName').value = '';
   document.getElementById('clientCompany').value = '';
-  document.getElementById('clientEmail').value  = '';
-  document.getElementById('clientPhone').value  = '';
+  document.getElementById('clientEmail').value = '';
+  document.getElementById('clientPhone').value = '';
 }
 
-// ===== CLIENT MODAL =====
+// ===== REAL-TIME VALIDATION (SANITIZER) =====
+function setupRealTimeValidation() {
+  // Email validation
+  document.getElementById('clientEmail')?.addEventListener('blur', function() {
+    const email = this.value.trim();
+    if (email && !IRSanitizer.isValidEmail(email)) {
+      this.classList.add('invalid');
+      showToast('Invalid email format', 'warning');
+    } else {
+      this.classList.remove('invalid');
+    }
+  });
+
+  // Phone validation
+  document.getElementById('clientPhone')?.addEventListener('blur', function() {
+    const phone = this.value.trim();
+    if (phone && !IRSanitizer.isValidPhone(phone)) {
+      this.classList.add('invalid');
+      showToast('Invalid phone number', 'warning');
+    } else {
+      this.classList.remove('invalid');
+    }
+  });
+
+  // Price auto-formatting
+  document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('item-price')) {
+      const original = e.target.value;
+      const cleaned = IRSanitizer.sanitizePrice(original);
+      if (original !== cleaned.toString()) {
+        e.target.value = cleaned.toFixed(2);
+      }
+    }
+  });
+}
+
+// ===== CLIENT MODAL (WITH SANITIZER) =====
 function openAddClientModal() {
   document.getElementById('addClientModal').style.display = 'flex';
   document.getElementById('newClientName').focus();
@@ -105,34 +127,31 @@ function closeAddClientModal() {
 }
 
 function saveNewClient() {
-  const name    = document.getElementById('newClientName').value.trim();
-  const company = document.getElementById('newClientCompany').value.trim();
-  const email   = document.getElementById('newClientEmail').value.trim();
-  const phone   = document.getElementById('newClientPhone').value.trim();
-  const address = document.getElementById('newClientAddress').value.trim();
+  // Collect raw data
+  const rawClientData = {
+    name: document.getElementById('newClientName').value,
+    company: document.getElementById('newClientCompany').value,
+    email: document.getElementById('newClientEmail').value,
+    phone: document.getElementById('newClientPhone').value,
+    address: document.getElementById('newClientAddress').value
+  };
 
-  if (!name || !phone) {
-    showToast('Please fill all required fields', 'error');
-    return;
+  // Sanitize
+  const cleanClient = IRSanitizer.sanitizeClient(rawClientData);
+
+  // Validate (auto shows toast!)
+  const validation = IRSanitizer.validateClient(cleanClient);
+  if (!validation.valid) {
+    return; // Toast already shown
   }
 
   try {
-    const newClient = window.DataManager.createClient({
-      name,
-      company,
-      email,
-      phone,
-      address
-    });
-
+    const newClient = window.DataManager.createClient(cleanClient);
     showToast('Client added successfully!', 'success');
     closeAddClientModal();
     loadClients();
-
-    // Auto-select the new client
     document.getElementById('clientSelect').value = newClient.id;
     loadClientData();
-
   } catch (error) {
     showToast('Failed to add client', 'error');
     console.error(error);
@@ -145,7 +164,6 @@ function addReceiptItem() {
   const tbody = document.getElementById('itemsTableBody');
   const row = document.createElement('tr');
   row.id = `item-row-${itemCounter}`;
-
   row.innerHTML = `
     <td>
       <input type="text" class="form-input item-description" placeholder="Item description" required>
@@ -165,7 +183,6 @@ function addReceiptItem() {
       </button>
     </td>
   `;
-
   tbody.appendChild(row);
   calculateTotals();
 }
@@ -175,8 +192,6 @@ function removeReceiptItem(id) {
   if (row) {
     row.remove();
     calculateTotals();
-
-    // Ensure at least one item row exists
     const tbody = document.getElementById('itemsTableBody');
     if (tbody.children.length === 0) {
       addReceiptItem();
@@ -187,84 +202,61 @@ function removeReceiptItem(id) {
 // ===== CALCULATIONS =====
 function calculateTotals() {
   let subtotal = 0;
-
-  // Calculate subtotal from items
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
-    const qty   = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value)   || 0;
+    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
+    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
     const amount = qty * price;
-
     const amountSpan = row.querySelector('.item-amount');
     if (amountSpan) {
       amountSpan.textContent = `${currentCurrencySymbol}${amount.toFixed(2)}`;
     }
-
     subtotal += amount;
   });
 
-  // Calculate tax
-  const taxRate  = parseFloat(document.getElementById('taxRate').value) || 0;
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
-
-  // Calculate discount
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
-  const discountType  = document.getElementById('discountType').value;
+  const discountType = document.getElementById('discountType').value;
   let discountAmount = 0;
-
   if (discountType === 'percent') {
     discountAmount = subtotal * (discountInput / 100);
   } else {
     discountAmount = Math.min(discountInput, subtotal + taxAmount);
   }
 
-  // Calculate total
   const total = subtotal + taxAmount - discountAmount;
 
-  // Update display
   document.getElementById('subtotalAmount').textContent = `${currentCurrencySymbol}${subtotal.toFixed(2)}`;
-  document.getElementById('taxAmount').textContent     = `${currentCurrencySymbol}${taxAmount.toFixed(2)}`;
+  document.getElementById('taxAmount').textContent = `${currentCurrencySymbol}${taxAmount.toFixed(2)}`;
   document.getElementById('discountAmount').textContent = `-${currentCurrencySymbol}${discountAmount.toFixed(2)}`;
-  document.getElementById('totalAmount').textContent    = `${currentCurrencySymbol}${total.toFixed(2)}`;
+  document.getElementById('totalAmount').textContent = `${currentCurrencySymbol}${total.toFixed(2)}`;
 }
 
 function updateCurrency() {
   const currencySelect = document.getElementById('currency');
-  const symbols = {
-    'GHS': '₵',
-    'USD': '$',
-    'EUR': '€',
-    'GBP': '£',
-    'NGN': '₦'
-  };
-
+  const symbols = { 'GHS': '₵', 'USD': '$', 'EUR': '€', 'GBP': '£', 'NGN': '₦' };
   currentCurrencySymbol = symbols[currencySelect.value] || '₵';
   calculateTotals();
 }
 
-// ===== FORM SUBMISSION =====
+// ===== FORM SUBMISSION (WITH SANITIZER) =====
 document.getElementById('createReceiptForm')?.addEventListener('submit', function(e) {
   e.preventDefault();
   saveReceipt();
 });
 
 function saveReceipt(generatePDF = false) {
-  // Validate form
-  if (!validateReceiptForm()) {
-    return;
-  }
-
   // Collect items
   const items = [];
   const rows = document.querySelectorAll('#itemsTableBody tr');
   rows.forEach(row => {
-    const description = row.querySelector('.item-description')?.value;
-    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-
-    if (description && qty > 0 && price >= 0) {
-      items.push({ name: description, qty, price });
-    }
+    const item = {
+      name: row.querySelector('.item-description')?.value,
+      qty: row.querySelector('.item-quantity')?.value,
+      price: row.querySelector('.item-price')?.value
+    };
+    if (item.name) items.push(item);
   });
 
   if (items.length === 0) {
@@ -273,32 +265,27 @@ function saveReceipt(generatePDF = false) {
   }
 
   // Calculate totals
-  const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
-  const taxRate  = parseFloat(document.getElementById('taxRate').value) || 0;
+  const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.qty) * parseFloat(item.price)), 0 );
+  const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
-
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
-  const discountType  = document.getElementById('discountType').value;
-  const discountAmount = discountType === 'percent'
-    ? subtotal * (discountInput / 100)
-    : Math.min(discountInput, subtotal + taxAmount);
-
+  const discountType = document.getElementById('discountType').value;
+  const discountAmount = discountType === 'percent' ? subtotal * (discountInput / 100) : Math.min(discountInput, subtotal + taxAmount);
   const total = subtotal + taxAmount - discountAmount;
 
-  // Get settings for company info
   const settings = window.GlobalSettings?.settings?.general || {};
   const receiptSettings = window.GlobalSettings?.settings?.receipt || {};
 
-  // Create receipt data
-  const receiptData = {
+  // Build raw receipt data
+  const rawReceiptData = {
     number: document.getElementById('receiptNumber').value,
     clientId: selectedClientId,
-    clientName:  document.getElementById('clientName').value,
+    clientName: document.getElementById('clientName').value,
     clientEmail: document.getElementById('clientEmail').value,
     clientPhone: document.getElementById('clientPhone').value,
-    companyName:    settings.companyName    || 'My Company',
-    companyContact: settings.companyPhone   || '',
-    companyLogo:    settings.companyLogo    || '',
+    companyName: settings.companyName || 'My Company',
+    companyContact: settings.companyPhone || '',
+    companyLogo: settings.companyLogo || '',
     date: document.getElementById('paymentDate').value,
     items,
     subtotal,
@@ -307,7 +294,7 @@ function saveReceipt(generatePDF = false) {
     discountAmount,
     total,
     paymentMethod: document.getElementById('paymentMethod').value,
-    status: 'paid', // Always paid for receipts
+    status: 'paid',
     currency: document.getElementById('currency').value,
     currencySymbol: currentCurrencySymbol,
     notes: document.getElementById('receiptNotes').value,
@@ -315,18 +302,25 @@ function saveReceipt(generatePDF = false) {
     footerNote: receiptSettings.footerNote || 'Payment received with thanks!'
   };
 
-  try {
-    const savedReceipt = window.DataManager.createReceipt(receiptData);
-    showToast('Receipt saved successfully!', 'success');
+  // SANITIZE the complete receipt
+  const cleanReceipt = IRSanitizer.sanitizeReceipt(rawReceiptData);
 
+  // VALIDATE (auto shows toast on error!)
+  const validation = IRSanitizer.validateReceipt(cleanReceipt);
+  if (!validation.valid) {
+    return; // Toast already shown by sanitizer!
+  }
+
+  // Save clean data
+  try {
+    const savedReceipt = window.DataManager.createReceipt(cleanReceipt);
+    showToast('Receipt saved successfully!', 'success');
     if (generatePDF) {
       generateReceiptPDF(savedReceipt);
     }
-
     setTimeout(() => {
       window.location.href = '/receipts.html';
     }, generatePDF ? 2500 : 1500);
-
   } catch (error) {
     showToast('Failed to save receipt', 'error');
     console.error(error);
@@ -355,37 +349,21 @@ function validateReceiptForm() {
     showToast('Please select payment method', 'error');
     return false;
   }
-
   return true;
 }
 
 // ===== PDF GENERATION =====
 function generateReceiptPDF(receipt) {
   showToast('Generating PDF...', 'info');
-
   const pdfHTML = buildReceiptPDFHTML(receipt);
-
   const opt = {
     margin: [10, 10, 10, 10],
     filename: `${receipt.number}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      letterRendering: true,
-      scrollY: 0,
-      backgroundColor: '#ffffff'
-    },
-    jsPDF: {
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true
-    },
+    html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true, scrollY: 0, backgroundColor: '#ffffff' },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4', compress: true },
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
-
   html2pdf().set(opt).from(pdfHTML).save()
     .then(() => showToast('PDF generated successfully!', 'success'))
     .catch(error => {
@@ -424,21 +402,18 @@ function buildReceiptPDFHTML(receipt) {
           <p style="margin: 0; color: #10b981; font-weight: bold;">✓ PAID</p>
         </div>
       </div>
-
       <div style="margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
         <h3 style="margin: 0 0 10px 0;">Received From:</h3>
         <p style="margin: 0; font-weight: bold;">${receipt.clientName}</p>
         ${receipt.clientEmail ? `<p style="margin: 0;">Email: ${receipt.clientEmail}</p>` : ''}
         <p style="margin: 0;">Phone: ${receipt.clientPhone}</p>
       </div>
-
       ${showPaymentMethod ? `
-      <div style="margin-bottom: 20px; padding: 12px; background: #e8f5e9; border-left: 4px solid #10b981; border-radius: 4px;">
-        <strong>Payment Method:</strong> ${receipt.paymentMethod}
-        ${receipt.transactionRef ? ` | <strong>Ref:</strong> ${receipt.transactionRef}` : ''}
-      </div>
+        <div style="margin-bottom: 20px; padding: 12px; background: #e8f5e9; border-left: 4px solid #10b981; border-radius: 4px;">
+          <strong>Payment Method:</strong> ${receipt.paymentMethod}
+          ${receipt.transactionRef ? ` | <strong>Ref:</strong> ${receipt.transactionRef}` : ''}
+        </div>
       ` : ''}
-
       <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <thead>
           <tr style="background: #f8f9fa;">
@@ -452,25 +427,20 @@ function buildReceiptPDFHTML(receipt) {
           ${itemsHTML}
         </tbody>
       </table>
-
       <div style="text-align: right; margin-bottom: 20px;">
         <p style="margin: 5px 0;"><strong>Subtotal:</strong> ${receipt.currencySymbol}${receipt.subtotal.toFixed(2)}</p>
-        ${showTax && receipt.taxAmount > 0 ?
-    `<p style="margin: 5px 0;"><strong>Tax (${receipt.taxRate}%):</strong> ${receipt.currencySymbol}${receipt.taxAmount.toFixed(2)}</p>` : ''}
-        ${receipt.discountAmount > 0 ?
-    `<p style="margin: 5px 0;"><strong>Discount:</strong> -${receipt.currencySymbol}${receipt.discountAmount.toFixed(2)}</p>` : ''}
+        ${showTax && receipt.taxAmount > 0 ? `<p style="margin: 5px 0;"><strong>Tax (${receipt.taxRate}%):</strong> ${receipt.currencySymbol}${receipt.taxAmount.toFixed(2)}</p>` : ''}
+        ${receipt.discountAmount > 0 ? `<p style="margin: 5px 0;"><strong>Discount:</strong> -${receipt.currencySymbol}${receipt.discountAmount.toFixed(2)}</p>` : ''}
         <p style="margin: 10px 0 0 0; font-size: 18px; font-weight: bold; color: #10b981;">
           <strong>Total Paid:</strong> ${receipt.currencySymbol}${receipt.total.toFixed(2)}
         </p>
       </div>
-
       ${receipt.notes ? `
-      <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-        <p style="margin: 0;"><strong>Notes:</strong></p>
-        <p style="margin: 5px 0 0 0;">${receipt.notes}</p>
-      </div>
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+          <p style="margin: 0;"><strong>Notes:</strong></p>
+          <p style="margin: 5px 0 0 0;">${receipt.notes}</p>
+        </div>
       ` : ''}
-
       <div style="margin-top: 30px; text-align: center; padding: 20px; background: #e8f5e9; border-radius: 8px; border: 2px solid #10b981;">
         <p style="margin: 0; font-weight: bold; font-size: 16px; color: #10b981;">
           ${receipt.footerNote}
@@ -483,36 +453,41 @@ function buildReceiptPDFHTML(receipt) {
   `;
 }
 
-function generatePDFFromPreview() {
-  closePreview();
+function previewReceipt() {
+  if (!validateReceiptForm()) {
+    showToast('Please fill all required fields', 'error');
+    return;
+  }
   const receiptData = collectReceiptData();
-  generateReceiptPDF(receiptData);
+  const previewHTML = buildReceiptPDFHTML(receiptData);
+  document.getElementById('previewContent').innerHTML = previewHTML;
+  document.getElementById('previewModal').style.display = 'flex';
+}
+
+function closePreview() {
+  document.getElementById('previewModal').style.display = 'none';
 }
 
 function collectReceiptData() {
   const items = [];
   const rows = document.querySelectorAll('#itemsTableBody tr');
-
   rows.forEach(row => {
-    const description = row.querySelector('.item-description')?.value;
-    const qty = parseFloat(row.querySelector('.item-quantity')?.value) || 0;
-    const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-
-    if (description && qty > 0 && price >= 0) {
-      items.push({ name: description, qty, price });
+    const item = {
+      name: row.querySelector('.item-description')?.value,
+      qty: parseFloat(row.querySelector('.item-quantity')?.value) || 0,
+      price: parseFloat(row.querySelector('.item-price')?.value) || 0
+    };
+    if (item.name && item.qty > 0 && item.price >= 0) {
+      items.push(item);
     }
   });
 
   const subtotal = items.reduce((sum, item) => sum + (item.qty * item.price), 0);
   const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
   const taxAmount = subtotal * (taxRate / 100);
-
   const discountInput = parseFloat(document.getElementById('discount').value) || 0;
   const discountType = document.getElementById('discountType').value;
-  const discountAmount = discountType === 'percent'
-    ? subtotal * (discountInput / 100)
-    : Math.min(discountInput, subtotal + taxAmount);
-
+  const discountAmount = discountType === 'percent' ? subtotal * (discountInput / 100) : Math.min(discountInput, subtotal + taxAmount);
   const total = subtotal + taxAmount - discountAmount;
 
   const settings = window.GlobalSettings?.settings?.general || {};
@@ -520,11 +495,11 @@ function collectReceiptData() {
 
   return {
     number: document.getElementById('receiptNumber').value,
-    clientName:  document.getElementById('clientName').value,
+    clientName: document.getElementById('clientName').value,
     clientEmail: document.getElementById('clientEmail').value,
     clientPhone: document.getElementById('clientPhone').value,
-    companyName:    settings.companyName    || 'My Company',
-    companyContact: settings.companyPhone   || '',
+    companyName: settings.companyName || 'My Company',
+    companyContact: settings.companyPhone || '',
     date: document.getElementById('paymentDate').value,
     items,
     subtotal,
@@ -540,21 +515,10 @@ function collectReceiptData() {
   };
 }
 
-// ===== PREVIEW =====
-function previewReceipt() {
-  if (!validateReceiptForm()) {
-    showToast('Please fill all required fields', 'error');
-    return;
-  }
-
+function generatePDFFromPreview() {
+  closePreview();
   const receiptData = collectReceiptData();
-  const previewHTML = buildReceiptPDFHTML(receiptData);
-  document.getElementById('previewContent').innerHTML = previewHTML;
-  document.getElementById('previewModal').style.display = 'flex';
-}
-
-function closePreview() {
-  document.getElementById('previewModal').style.display = 'none';
+  generateReceiptPDF(receiptData);
 }
 
 // ===== UTILITY FUNCTIONS =====
@@ -562,7 +526,6 @@ function resetReceiptForm() {
   if (!confirm('Are you sure you want to reset the form? All data will be lost.')) {
     return;
   }
-
   document.getElementById('createReceiptForm').reset();
   document.getElementById('itemsTableBody').innerHTML = '';
   itemCounter = 0;
@@ -586,10 +549,8 @@ function toggleNotifications() {
 function updateBadgeCounts() {
   const invoices = window.DataManager?.getInvoices() || [];
   const receipts = window.DataManager?.getReceipts() || [];
-
   const invoiceBadge = document.getElementById('invoiceCount');
   const receiptBadge = document.getElementById('receiptCount');
-
   if (invoiceBadge) invoiceBadge.textContent = invoices.length;
   if (receiptBadge) receiptBadge.textContent = receipts.length;
 }
@@ -597,85 +558,22 @@ function updateBadgeCounts() {
 // Add receipt-specific styles
 const style = document.createElement('style');
 style.textContent = `
-  .page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .page-title-group h1 {
-    font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-  }
-  .page-subtitle {
-    color: var(--text-secondary);
-  }
-  .page-actions {
-    display: flex;
-    gap: 1rem;
-  }
-  .btn-secondary {
-    padding: 0.9rem 1.5rem;
-    background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    color: var(--text-primary);
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all var(--transition-fast);
-  }
-  .btn-secondary:hover {
-    border-color: var(--primary);
-    background: var(--bg-tertiary);
-  }
-  .receipt-form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  .receipt-summary {
-    max-width: 400px;
-    margin-left: auto;
-    background: var(--bg-tertiary);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 2px solid var(--success);
-  }
-  .footer-note-preview {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--bg-tertiary);
-    border-left: 4px solid var(--success);
-    border-radius: 8px;
-  }
-  .footer-note-preview strong {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--success);
-  }
-  .footer-note-preview p {
-    margin: 0;
-    font-style: italic;
-    color: var(--text-secondary);
-  }
-  .modal-large {
-    max-width: 900px;
-  }
-  .preview-container {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding: 1rem;
-  }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+  .page-title-group h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+  .page-subtitle { color: var(--text-secondary); }
+  .page-actions { display: flex; gap: 1rem; }
+  .btn-secondary { padding: 0.9rem 1.5rem; background: var(--bg-secondary); border: 2px solid var(--border); color: var(--text-primary); border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all var(--transition-fast); }
+  .btn-secondary:hover { border-color: var(--primary); background: var(--bg-tertiary); }
+  .btn-primary { padding: 0.9rem 1.5rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all var(--transition-fast); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .form-input.invalid, .form-select.invalid { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
+  .form-input.valid { border-color: var(--success) !important; }
+  .receipt-form { display: flex; flex-direction: column; gap: 2rem; }
+  .receipt-summary { max-width: 400px; margin-left: auto; background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; border: 2px solid var(--success); }
+  .footer-note-preview { margin-top: 1rem; padding: 1rem; background: var(--bg-tertiary); border-left: 4px solid var(--success); border-radius: 8px; }
+  .footer-note-preview strong { display: block; margin-bottom: 0.5rem; color: var(--success); }
+  .footer-note-preview p { margin: 0; font-style: italic; color: var(--text-secondary); }
+  .modal-large { max-width: 900px; }
+  .preview-container { max-height: 70vh; overflow-y: auto; padding: 1rem; }
 `;
 document.head.appendChild(style);

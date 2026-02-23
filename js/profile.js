@@ -1,4 +1,5 @@
-// Profile Page JavaScript
+// Profile Page JavaScript - WITH SANITIZER
+// =========================================
 let profileData = JSON.parse(localStorage.getItem('userProfile')) || {
   firstName: 'Demo',
   lastName: 'User',
@@ -21,12 +22,10 @@ function loadProfile() {
   document.getElementById('email').value = profileData.email;
   document.getElementById('phone').value = profileData.phone;
   document.getElementById('bio').value = profileData.bio || '';
-
   if (profileData.avatar) {
     document.getElementById('avatarPreview').style.backgroundImage = `url(${profileData.avatar})`;
     document.getElementById('avatarPreview').innerHTML = '';
   }
-
   document.getElementById('companyName').value = profileData.company.name;
   document.getElementById('regNumber').value = profileData.company.regNumber || '';
   document.getElementById('address').value = profileData.company.address || '';
@@ -34,7 +33,6 @@ function loadProfile() {
   document.getElementById('country').value = profileData.company.country;
   document.getElementById('website').value = profileData.company.website || '';
   document.getElementById('taxId').value = profileData.company.taxId || '';
-
   document.getElementById('defaultCurrency').value = profileData.preferences.currency;
   document.getElementById('dateFormat').value = profileData.preferences.dateFormat;
   document.getElementById('invoicePrefix').value = profileData.preferences.invoicePrefix;
@@ -44,12 +42,10 @@ function loadProfile() {
 function handleAvatarUpload() {
   const file = document.getElementById('avatarInput').files[0];
   if (!file) return;
-
   if (file.size > 2 * 1024 * 1024) {
     showToast('File size must be less than 2MB', 'error');
     return;
   }
-
   const reader = new FileReader();
   reader.onload = (e) => {
     profileData.avatar = e.target.result;
@@ -70,7 +66,6 @@ function removeAvatar() {
 function handleLogoUpload() {
   const file = document.getElementById('logoInput').files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = (e) => {
     profileData.company.logo = e.target.result;
@@ -82,33 +77,47 @@ function handleLogoUpload() {
 }
 
 function savePersonalInfo() {
-  profileData.firstName = document.getElementById('firstName').value;
-  profileData.lastName = document.getElementById('lastName').value;
-  profileData.email = document.getElementById('email').value;
-  profileData.phone = document.getElementById('phone').value;
-  profileData.bio = document.getElementById('bio').value;
+  // SANITIZE inputs
+  profileData.firstName = IRSanitizer.sanitizePersonName(document.getElementById('firstName').value);
+  profileData.lastName = IRSanitizer.sanitizePersonName(document.getElementById('lastName').value);
+  profileData.email = IRSanitizer.sanitizeEmail(document.getElementById('email').value);
+  profileData.phone = IRSanitizer.sanitizePhone(document.getElementById('phone').value);
+  profileData.bio = IRSanitizer.sanitizeText(document.getElementById('bio').value, 500);
+
+  // Validate email
+  if (profileData.email && !IRSanitizer.isValidEmail(profileData.email)) {
+    showToast('Invalid email format', 'error');
+    return;
+  }
+  // Validate phone
+  if (profileData.phone && !IRSanitizer.isValidPhone(profileData.phone)) {
+    showToast('Invalid phone number', 'error');
+    return;
+  }
 
   localStorage.setItem('userProfile', JSON.stringify(profileData));
   showToast('Personal information saved!', 'success');
 }
 
 function saveCompanyInfo() {
-  profileData.company.name = document.getElementById('companyName').value;
-  profileData.company.regNumber = document.getElementById('regNumber').value;
-  profileData.company.address = document.getElementById('address').value;
-  profileData.company.city = document.getElementById('city').value;
-  profileData.company.country = document.getElementById('country').value;
-  profileData.company.website = document.getElementById('website').value;
-  profileData.company.taxId = document.getElementById('taxId').value;
+  // SANITIZE inputs
+  profileData.company.name = IRSanitizer.sanitizeCompanyName(document.getElementById('companyName').value);
+  profileData.company.regNumber = IRSanitizer.sanitizeText(document.getElementById('regNumber').value, 50);
+  profileData.company.address = IRSanitizer.sanitizeAddress(document.getElementById('address').value);
+  profileData.company.city = IRSanitizer.sanitizeText(document.getElementById('city').value, 100);
+  profileData.company.country = IRSanitizer.sanitizeText(document.getElementById('country').value, 100);
+  profileData.company.website = IRSanitizer.sanitizeURL(document.getElementById('website').value);
+  profileData.company.taxId = IRSanitizer.sanitizeText(document.getElementById('taxId').value, 50);
 
   localStorage.setItem('userProfile', JSON.stringify(profileData));
   showToast('Company information saved!', 'success');
 }
 
 function savePreferences() {
-  profileData.preferences.currency = document.getElementById('defaultCurrency').value;
-  profileData.preferences.dateFormat = document.getElementById('dateFormat').value;
-  profileData.preferences.invoicePrefix = document.getElementById('invoicePrefix').value;
+  // SANITIZE inputs
+  profileData.preferences.currency = IRSanitizer.sanitizeCurrency(document.getElementById('defaultCurrency').value);
+  profileData.preferences.dateFormat = IRSanitizer.sanitizeText(document.getElementById('dateFormat').value, 20);
+  profileData.preferences.invoicePrefix = IRSanitizer.sanitizeText(document.getElementById('invoicePrefix').value, 10);
   profileData.preferences.emailNotifications = document.getElementById('emailNotif').checked;
 
   localStorage.setItem('userProfile', JSON.stringify(profileData));
@@ -119,22 +128,18 @@ function changePassword() {
   const current = document.getElementById('currentPassword').value;
   const newPass = document.getElementById('newPassword').value;
   const confirm = document.getElementById('confirmPassword').value;
-
   if (!current || !newPass || !confirm) {
     showToast('Please fill all password fields', 'error');
     return;
   }
-
   if (newPass !== confirm) {
     showToast('New passwords do not match', 'error');
     return;
   }
-
   if (newPass.length < 8) {
     showToast('Password must be at least 8 characters', 'error');
     return;
   }
-
   showToast('Password updated successfully!', 'success');
   document.getElementById('currentPassword').value = '';
   document.getElementById('newPassword').value = '';
@@ -152,7 +157,9 @@ function toggleSidebar() {
   document.querySelector('.dashboard-main')?.classList.toggle('full-width');
 }
 
-function toggleUserMenu() { document.getElementById('userDropdown')?.classList.toggle('show'); }
+function toggleUserMenu() {
+  document.getElementById('userDropdown')?.classList.toggle('show');
+}
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');

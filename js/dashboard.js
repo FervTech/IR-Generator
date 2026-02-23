@@ -66,6 +66,9 @@ function loadDashboardStats() {
 
   const receiptCount = document.getElementById('receiptCount');
   if (receiptCount) receiptCount.textContent = totalReceipts;
+
+  const clientCount = document.getElementById('clientCount');
+  if (clientCount) clientCount.textContent = totalClients;
 }
 
 // ===== RECENT INVOICES =====
@@ -152,28 +155,7 @@ function toggleNotifications() {
   showToast('No new notifications', 'info');
 }
 
-function toggleDarkMode() {
-  const body = document.body;
-  const themeBtn = document.getElementById('themeBtn');
 
-  body.classList.toggle('dark-mode');
-
-  if (body.classList.contains('dark-mode')) {
-    themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-    localStorage.setItem('darkMode', 'enabled');
-  } else {
-    themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
-    localStorage.setItem('darkMode', 'disabled');
-  }
-}
-
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    const themeBtn = document.getElementById('themeBtn');
-    if (themeBtn) themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-  }
-}
 
 
 

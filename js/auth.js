@@ -1,7 +1,7 @@
-// Authentication JavaScript
-// ========================
+// Authentication JavaScript - WITH SANITIZER
+// ===========================================
 
-// User Database (Mock - Replace with real backend)
+// User Database (Mock)
 const USERS_DB = {
   'demo@free.com': {
     id: 'user_1',
@@ -13,101 +13,32 @@ const USERS_DB = {
     invoiceCount: 0,
     maxInvoices: 3,
     createdAt: new Date().toISOString()
-  },
-  'demo@starter.com': {
-    id: 'user_2',
-    email: 'demo@starter.com',
-    password: 'password123',
-    firstName: 'Starter',
-    lastName: 'User',
-    plan: 'starter',
-    invoiceCount: 0,
-    maxInvoices: 200,
-    createdAt: new Date().toISOString()
-  },
-  'demo@business.com': {
-    id: 'user_3',
-    email: 'demo@business.com',
-    password: 'password123',
-    firstName: 'Business',
-    lastName: 'User',
-    plan: 'business',
-    invoiceCount: 0,
-    maxInvoices: Infinity,
-    createdAt: new Date().toISOString()
   }
 };
 
 // Plan Configurations
 const PLANS = {
-  free: {
-    name: 'Free',
-    price: 0,
-    maxInvoices: 3,
-    maxCompanies: 1,
-    features: {
-      emailSending: false,
-      templates: false,
-      recurring: false,
-      analytics: false,
-      teamAccess: false,
-      apiAccess: false
-    }
-  },
-  starter: {
-    name: 'Starter',
-    price: 30,
-    maxInvoices: 200,
-    maxCompanies: 1,
-    features: {
-      emailSending: true,
-      templates: true,
-      recurring: false,
-      analytics: false,
-      teamAccess: false,
-      apiAccess: false
-    }
-  },
-  business: {
-    name: 'Business',
-    price: 80,
-    maxInvoices: Infinity,
-    maxCompanies: 5,
-    features: {
-      emailSending: true,
-      templates: true,
-      recurring: true,
-      analytics: true,
-      teamAccess: true,
-      apiAccess: false
-    }
-  },
-  enterprise: {
-    name: 'Enterprise',
-    price: 300,
-    maxInvoices: Infinity,
-    maxCompanies: Infinity,
-    features: {
-      emailSending: true,
-      templates: true,
-      recurring: true,
-      analytics: true,
-      teamAccess: true,
-      apiAccess: true
-    }
-  }
+  free: { name: 'Free', price: 0, maxInvoices: 3, maxCompanies: 1 },
+  starter: { name: 'Starter', price: 30, maxInvoices: 200, maxCompanies: 1 },
+  business: { name: 'Business', price: 80, maxInvoices: Infinity, maxCompanies: 5 },
+  enterprise: { name: 'Enterprise', price: 300, maxInvoices: Infinity, maxCompanies: Infinity }
 };
 
-// ===== AUTHENTICATION FUNCTIONS =====
+// ===== LOGIN (WITH SANITIZER) =====
 
 function handleLogin(e) {
   e.preventDefault();
 
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
+  // Sanitize inputs
+  const email = IRSanitizer.sanitizeEmail(document.getElementById('email').value);
+  const password = document.getElementById('password').value; // Don't sanitize password
   const rememberMe = document.getElementById('rememberMe').checked;
 
-  // Show loading
+  if (!IRSanitizer.isValidEmail(email)) {
+    showToast('Invalid email format', 'error');
+    return;
+  }
+
   const submitBtn = e.target.querySelector('.btn-submit');
   const btnText = submitBtn.querySelector('span');
   const btnLoader = submitBtn.querySelector('.btn-loader');
@@ -116,16 +47,13 @@ function handleLogin(e) {
   btnLoader.style.display = 'block';
   submitBtn.disabled = true;
 
-  // Simulate API call
   setTimeout(() => {
     const user = USERS_DB[email];
 
     if (user && user.password === password) {
-      // Successful login
       const userData = { ...user };
       delete userData.password;
 
-      // Store user data
       localStorage.setItem('currentUser', JSON.stringify(userData));
       if (rememberMe) {
         localStorage.setItem('rememberMe', 'true');
@@ -137,7 +65,6 @@ function handleLogin(e) {
         window.location.href = '../pages/dashboard.html';
       }, 1000);
     } else {
-      // Failed login
       btnText.style.display = 'inline';
       btnLoader.style.display = 'none';
       submitBtn.disabled = false;
@@ -147,34 +74,55 @@ function handleLogin(e) {
   }, 1000);
 }
 
+// ===== SIGNUP (WITH SANITIZER) =====
+
 function handleSignup(e) {
   e.preventDefault();
 
-  const firstName = document.getElementById('firstName').value;
-  const lastName = document.getElementById('lastName').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  const plan = document.getElementById('plan').value;
+  // Collect raw data
+  const rawUserData = {
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    password: document.getElementById('password').value,
+    confirmPassword: document.getElementById('confirmPassword').value,
+    plan: document.getElementById('plan').value
+  };
 
-  // Validation
-  if (password !== confirmPassword) {
+  // Sanitize names and email
+  const cleanFirstName = IRSanitizer.sanitizePersonName(rawUserData.firstName);
+  const cleanLastName = IRSanitizer.sanitizePersonName(rawUserData.lastName);
+  const cleanEmail = IRSanitizer.sanitizeEmail(rawUserData.email);
+
+  // Validate email
+  if (!IRSanitizer.isValidEmail(cleanEmail)) {
+    showToast('Invalid email format', 'error');
+    return;
+  }
+
+  // Validate names
+  if (!cleanFirstName || !cleanLastName) {
+    showToast('Please provide valid first and last names', 'error');
+    return;
+  }
+
+  // Validate passwords
+  if (rawUserData.password !== rawUserData.confirmPassword) {
     showToast('Passwords do not match', 'error');
     return;
   }
 
-  if (password.length < 8) {
+  if (rawUserData.password.length < 8) {
     showToast('Password must be at least 8 characters', 'error');
     return;
   }
 
-  // Check if user already exists
-  if (USERS_DB[email]) {
+  // Check if user exists
+  if (USERS_DB[cleanEmail]) {
     showToast('Email already registered', 'error');
     return;
   }
 
-  // Show loading
   const submitBtn = e.target.querySelector('.btn-submit');
   const btnText = submitBtn.querySelector('span');
   const btnLoader = submitBtn.querySelector('.btn-loader');
@@ -183,24 +131,20 @@ function handleSignup(e) {
   btnLoader.style.display = 'block';
   submitBtn.disabled = true;
 
-  // Simulate API call
   setTimeout(() => {
-    const planConfig = PLANS[plan];
+    const planConfig = PLANS[rawUserData.plan];
     const newUser = {
       id: 'user_' + Date.now(),
-      email,
-      firstName,
-      lastName,
-      plan,
+      email: cleanEmail,
+      firstName: cleanFirstName,
+      lastName: cleanLastName,
+      plan: rawUserData.plan,
       invoiceCount: 0,
       maxInvoices: planConfig.maxInvoices,
       createdAt: new Date().toISOString()
     };
 
-    // Store user
-    USERS_DB[email] = { ...newUser, password };
-
-    // Store in localStorage (without password)
+    USERS_DB[cleanEmail] = { ...newUser, password: rawUserData.password };
     localStorage.setItem('currentUser', JSON.stringify(newUser));
 
     showToast('Account created successfully! Redirecting...', 'success');
@@ -213,7 +157,6 @@ function handleSignup(e) {
 
 function signInWithGoogle() {
   showToast('Google Sign-In coming soon!', 'info');
-  // In production, implement OAuth
 }
 
 // ===== UTILITY FUNCTIONS =====
@@ -236,9 +179,7 @@ function togglePassword(inputId) {
 
 function fillDemoCredentials(planType) {
   const credentials = {
-    free: { email: 'demo@free.com', password: 'password123' },
-    starter: { email: 'demo@starter.com', password: 'password123' },
-    business: { email: 'demo@business.com', password: 'password123' }
+    free: { email: 'demo@free.com', password: 'password123' }
   };
 
   const cred = credentials[planType];
@@ -248,7 +189,6 @@ function fillDemoCredentials(planType) {
   showToast(`Filled ${planType} plan credentials`, 'info');
 }
 
-// Password Strength Checker
 function checkPasswordStrength(password) {
   const strengthFill = document.getElementById('strengthFill');
   const strengthText = document.getElementById('strengthText');
@@ -262,11 +202,8 @@ function checkPasswordStrength(password) {
 
   let strength = 0;
 
-  // Length
   if (password.length >= 8) strength++;
   if (password.length >= 12) strength++;
-
-  // Complexity
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
   if (/\d/.test(password)) strength++;
   if (/[^a-zA-Z\d]/.test(password)) strength++;
@@ -285,7 +222,6 @@ function checkPasswordStrength(password) {
     strengthText.style.color = 'var(--success)';
   }
 }
-
 
 // ===== AUTHENTICATION CHECK =====
 
@@ -316,20 +252,13 @@ function canCreateInvoice() {
   return user.invoiceCount < plan.maxInvoices;
 }
 
-function hasFeature(featureName) {
-  const plan = getUserPlan();
-  return plan.features[featureName] || false;
-}
-
 // ===== INITIALIZATION =====
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Check for saved dark mode preference
   if (localStorage.getItem('darkMode') === 'enabled') {
     document.body.classList.add('dark-mode');
   }
 
-  // Password strength checker (signup page only)
   const passwordInput = document.getElementById('password');
   if (passwordInput && window.location.pathname.includes('signup')) {
     passwordInput.addEventListener('input', (e) => {
@@ -337,7 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Auto-fill if remembered
   if (localStorage.getItem('rememberMe') === 'true') {
     const currentUser = getCurrentUser();
     if (currentUser && document.getElementById('email')) {
@@ -346,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Sign Out
 function handleLogout() {
   if (confirm('Are you sure you want to sign out?')) {
     localStorage.removeItem('currentUser');
@@ -357,13 +284,11 @@ function handleLogout() {
   }
 }
 
-
 // Export for use in other modules
 window.AuthService = {
   getCurrentUser,
   getUserPlan,
   canCreateInvoice,
-  hasFeature,
   requireAuth,
   PLANS
 };
