@@ -1,12 +1,11 @@
 // Dashboard JavaScript
-// Mock data for demo - remove AuthService dependency for now
 let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [];
 let RECEIPTS_DB = JSON.parse(localStorage.getItem('receipts')) || [];
 let CLIENTS_DB = JSON.parse(localStorage.getItem('clients')) || [];
 
 document.addEventListener('DOMContentLoaded', function() {
   loadDashboardStats();
-  loadRecentInvoices();
+  loadRecentActivity();
   setupDarkMode();
 });
 
@@ -16,17 +15,17 @@ function loadDashboardStats() {
   const receipts = RECEIPTS_DB;
   const clients = CLIENTS_DB;
 
-  // Calculate total counts
   const totalInvoices = invoices.length;
   const totalReceipts = receipts.length;
   const totalClients = clients.length;
 
-  // Calculate total revenue from paid invoices
-  const totalRevenue = invoices
+  const invoiceRevenue = invoices
     .filter(inv => inv.status === 'paid')
     .reduce((sum, inv) => sum + (inv.amount || inv.total || 0), 0);
 
-  // Calculate this month's data
+  const receiptRevenue = receipts.reduce((sum, rec) => sum + (rec.total || 0), 0);
+  const totalRevenue = invoiceRevenue + receiptRevenue;
+
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
@@ -40,24 +39,30 @@ function loadDashboardStats() {
     return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
   }).length;
 
-  const revenueThisMonth = invoices
+  const invoiceRevenueThisMonth = invoices
     .filter(inv => {
       const date = new Date(inv.issueDate || inv.date);
-      return inv.status === 'paid' &&
-        date.getMonth() === currentMonth &&
-        date.getFullYear() === currentYear;
+      return inv.status === 'paid' && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     })
     .reduce((sum, inv) => sum + (inv.amount || inv.total || 0), 0);
+
+  const receiptRevenueThisMonth = receipts
+    .filter(rec => {
+      const date = new Date(rec.date);
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    })
+    .reduce((sum, rec) => sum + (rec.total || 0), 0);
+
+  const revenueThisMonth = invoiceRevenueThisMonth + receiptRevenueThisMonth;
 
   // Update UI
   document.getElementById('totalInvoices').textContent = totalInvoices;
   document.getElementById('totalReceipts').textContent = totalReceipts;
   document.getElementById('totalClients').textContent = totalClients;
   document.getElementById('totalRevenue').textContent = `₵${totalRevenue.toFixed(2)}`;
-
   document.getElementById('invoicesThisMonth').textContent = invoicesThisMonth;
   document.getElementById('receiptsThisMonth').textContent = receiptsThisMonth;
-  document.getElementById('newClients').textContent = '0'; // Can be calculated if clients have dateAdded
+  document.getElementById('newClients').textContent = '0';
   document.getElementById('revenueThisMonth').textContent = `₵${revenueThisMonth.toFixed(2)}`;
 
   // Update badges
@@ -71,24 +76,49 @@ function loadDashboardStats() {
   if (clientCount) clientCount.textContent = totalClients;
 }
 
-// ===== RECENT INVOICES =====
-function loadRecentInvoices() {
-  const invoices = INVOICES_DB;
+// ===== RECENT ACTIVITY (Invoices + Receipts) =====
+function loadRecentActivity() {
   const tableBody = document.getElementById('invoicesTableBody');
-
   if (!tableBody) return;
 
-  if (invoices.length === 0) {
+  // Combine invoices and receipts with type flag and date
+  const activities = [
+    ...INVOICES_DB.map(inv => ({
+      type: 'Invoice',
+      id: inv.id,
+      number: inv.number,
+      clientName: inv.clientName || 'N/A',
+      date: inv.issueDate || inv.date || inv.createdAt || new Date().toISOString(),
+      amount: inv.amount || inv.total || 0,
+      status: inv.status || 'draft'
+    })),
+    ...RECEIPTS_DB.map(rec => ({
+      type: 'Receipt',
+      id: rec.id,
+      number: rec.number,
+      clientName: rec.clientName || 'N/A',
+      date: rec.date || rec.createdAt || new Date().toISOString(),
+      amount: rec.total || 0,
+      status: rec.status || 'paid'
+    }))
+  ];
+
+  // Sort by date (newest first)
+  activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  // Take most recent 10
+  const recentActivities = activities.slice(0, 10);
+
+  if (recentActivities.length === 0) {
     tableBody.innerHTML = `
       <tr class="empty-state">
         <td colspan="6">
           <div class="empty-state-content">
             <i class="fas fa-inbox"></i>
-            <h3>No invoices yet</h3>
-            <p>Create your first invoice to get started</p>
+            <h3>No activity yet</h3>
+            <p>Create your first invoice or receipt to get started</p>
             <button class="btn-primary" onclick="window.location.href='../partials/invoices.html'">
-              <i class="fas fa-plus"></i>
-              Create Invoice
+              <i class="fas fa-plus"></i> Create Invoice
             </button>
           </div>
         </td>
@@ -97,48 +127,56 @@ function loadRecentInvoices() {
     return;
   }
 
-  // Show recent 5 invoices
-  const recentInvoices = invoices.slice(0, 5);
-
-  tableBody.innerHTML = recentInvoices.map(invoice => `
+  tableBody.innerHTML = recentActivities.map(activity => `
     <tr>
-      <td><strong>#${invoice.number}</strong></td>
-      <td>${invoice.clientName}</td>
-      <td>${formatDate(invoice.issueDate || invoice.date)}</td>
-      <td><strong>₵${(invoice.amount || invoice.total || 0).toFixed(2)}</strong></td>
-      <td><span class="status-badge ${invoice.status}">${invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}</span></td>
+      <td><strong>#${activity.number}</strong></td>
+      <td>${activity.type}</td>
+      <td>${activity.clientName}</td>
+      <td>${formatDate(activity.date)}</td>
+      <td><strong>₵${activity.amount.toFixed(2)}</strong></td>
+      <td><span class="status-badge ${activity.status}">${activity.status.charAt(0).toUpperCase() + activity.status.slice(1)}</span></td>
       <td>
         <div class="table-actions">
-          <button class="action-btn" onclick="viewInvoice('${invoice.id}')" title="View"><i class="fas fa-eye"></i></button>
-          <button class="action-btn" onclick="downloadInvoice('${invoice.id}')" title="Download"><i class="fas fa-download"></i></button>
-          <button class="action-btn" onclick="deleteInvoice('${invoice.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+          <button class="action-btn" onclick="viewActivity('${activity.type}', '${activity.id}')" title="View"><i class="fas fa-eye"></i></button>
+          <button class="action-btn" onclick="downloadActivity('${activity.type}', '${activity.id}')" title="Download"><i class="fas fa-download"></i></button>
+          <button class="action-btn" onclick="deleteActivity('${activity.type}', '${activity.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     </tr>
   `).join('');
 }
 
-// ===== INVOICE ACTIONS =====
-function viewInvoice(invoiceId) {
-  window.location.href = `../partials/invoice-detail.html?id=${invoiceId}`;
+// ===== ACTIVITY ACTIONS =====
+function viewActivity(type, id) {
+  if (type === 'Invoice') {
+    window.location.href = `../partials/invoice-detail.html?id=${id}`;
+  } else if (type === 'Receipt') {
+    window.location.href = `../partials/receipt-detail.html?id=${id}`; // adjust URL if you have a receipt detail page
+  }
 }
 
-function downloadInvoice(invoiceId) {
-  showToast('Downloading invoice...', 'info');
+function downloadActivity(type, id) {
+  showToast(`Downloading ${type.toLowerCase()}...`, 'info');
+  // You can add actual download logic later (PDF generation)
 }
 
-function deleteInvoice(invoiceId) {
-  if (!confirm('Are you sure you want to delete this invoice?')) return;
+function deleteActivity(type, id) {
+  if (!confirm(`Are you sure you want to delete this ${type.toLowerCase()}?`)) return;
 
-  INVOICES_DB = INVOICES_DB.filter(inv => inv.id !== invoiceId);
-  localStorage.setItem('invoices', JSON.stringify(INVOICES_DB));
+  if (type === 'Invoice') {
+    INVOICES_DB = INVOICES_DB.filter(inv => inv.id !== id);
+    localStorage.setItem('invoices', JSON.stringify(INVOICES_DB));
+  } else if (type === 'Receipt') {
+    RECEIPTS_DB = RECEIPTS_DB.filter(rec => rec.id !== id);
+    localStorage.setItem('receipts', JSON.stringify(RECEIPTS_DB));
+  }
 
   loadDashboardStats();
-  loadRecentInvoices();
-  showToast('Invoice deleted successfully', 'success');
+  loadRecentActivity();
+  showToast(`${type} deleted successfully`, 'success');
 }
 
-// ===== UI INTERACTIONS =====
+// ===== UI INTERACTIONS ===== (unchanged)
 function toggleSidebar() {
   const sidebar = document.getElementById('sidebar');
   const dashboardMain = document.querySelector('.dashboard-main');
@@ -155,20 +193,14 @@ function toggleNotifications() {
   showToast('No new notifications', 'info');
 }
 
-
-
-
-// Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
   const userMenu = document.querySelector('.user-menu');
   const dropdown = document.getElementById('userDropdown');
-
   if (userMenu && dropdown && !userMenu.contains(e.target)) {
     dropdown.classList.remove('show');
   }
 });
 
-// Add status badge styles dynamically
 const style = document.createElement('style');
 style.textContent = `
   .status-badge {
@@ -178,27 +210,22 @@ style.textContent = `
     font-weight: 600;
     text-transform: uppercase;
   }
-
   .status-badge.paid {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
   }
-
   .status-badge.pending {
     background: rgba(245, 158, 11, 0.1);
     color: var(--warning);
   }
-
   .status-badge.overdue {
     background: rgba(239, 68, 68, 0.1);
     color: var(--error);
   }
-
   .table-actions {
     display: flex;
     gap: 0.5rem;
   }
-
   .action-btn {
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
@@ -212,7 +239,6 @@ style.textContent = `
     justify-content: center;
     transition: all 0.2s ease;
   }
-
   .action-btn:hover {
     background: var(--primary);
     color: white;

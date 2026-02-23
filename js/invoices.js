@@ -1,36 +1,5 @@
 // Invoices Page - Full implementation similar to receipts
-let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [
-  {
-    id: 'INV001',
-    number: 'INV-2025-001',
-    customerName: 'Acme Corp',
-    customerContact: '+233 24 111 2222',
-    issueDate: '2025-02-01',
-    dueDate: '2025-02-15',
-    amount: 5000.00,
-    status: 'paid'
-  },
-  {
-    id: 'INV002',
-    number: 'INV-2025-002',
-    customerName: 'Tech Solutions Ltd',
-    customerContact: '+233 20 333 4444',
-    issueDate: '2025-02-05',
-    dueDate: '2025-02-19',
-    amount: 3500.00,
-    status: 'pending'
-  },
-  {
-    id: 'INV003',
-    number: 'INV-2025-003',
-    customertName: 'Global Services',
-    customerContact: '+233 27 555 6666',
-    issueDate: '2025-01-20',
-    dueDate: '2025-02-03',
-    amount: 8200.00,
-    status: 'overdue'
-  }
-];
+let INVOICES_DB = JSON.parse(localStorage.getItem('invoices')) || [];
 
 let currentPage = 1;
 const itemsPerPage = 10;
@@ -57,8 +26,7 @@ function loadInvoices() {
             <h3>No invoices found</h3>
             <p>Create your first invoice or adjust your filters</p>
             <button class="btn-primary" onclick="window.location.href='/create-invoice.html'">
-              <i class="fas fa-plus"></i>
-              Create Invoice
+              <i class="fas fa-plus"></i> Create Invoice
             </button>
           </div>
         </td>
@@ -73,12 +41,12 @@ function loadInvoices() {
   tableBody.innerHTML = paginatedInvoices.map(inv => `
     <tr>
       <td><input type="checkbox" class="invoice-checkbox" data-id="${inv.id}" onchange="toggleInvoiceSelection('${inv.id}')"></td>
-      <td><strong>${inv.number}</strong></td>
-      <td>${inv.clientName}</td>
+      <td><strong>${inv.number || 'N/A'}</strong></td>
+      <td>${inv.clientName || 'N/A'}</td>
       <td>${formatDate(inv.issueDate)}</td>
       <td>${formatDate(inv.dueDate)}</td>
-      <td><strong>₵${inv.amount.toFixed(2)}</strong></td>
-      <td><span class="status-badge ${inv.status}">${inv.status.toUpperCase()}</span></td>
+      <td><strong>₵${(inv.amount || inv.total || 0).toFixed(2)}</strong></td>
+      <td><span class="status-badge ${inv.status || 'draft'}">${(inv.status || 'draft').toUpperCase()}</span></td>
       <td>
         <div class="table-actions">
           <button class="action-btn" onclick="viewInvoice('${inv.id}')" title="View"><i class="fas fa-eye"></i></button>
@@ -99,7 +67,7 @@ function updateStats() {
   const paid = INVOICES_DB.filter(i => i.status === 'paid').length;
   const pending = INVOICES_DB.filter(i => i.status === 'pending').length;
   const overdue = INVOICES_DB.filter(i => i.status === 'overdue').length;
-  const totalAmount = INVOICES_DB.reduce((sum, i) => sum + i.amount, 0);
+  const totalAmount = INVOICES_DB.reduce((sum, i) => sum + (i.amount || i.total || 0), 0);
 
   document.getElementById('totalInvoicesCount').textContent = total;
   document.getElementById('paidInvoicesCount').textContent = paid;
@@ -109,13 +77,13 @@ function updateStats() {
 }
 
 function filterInvoices() {
-  const status = document.getElementById('statusFilter').value;
-  const dateRange = document.getElementById('dateFilter').value;
-  const sort = document.getElementById('sortFilter').value;
+  const status = document.getElementById('statusFilter')?.value || 'all';
+  const dateRange = document.getElementById('dateFilter')?.value || 'all';
+  const sort = document.getElementById('sortFilter')?.value || 'date-desc';
 
   filteredInvoices = INVOICES_DB.filter(inv => {
     if (status !== 'all' && inv.status !== status) return false;
-    // Add date filtering logic here
+    // Add date filtering logic here if needed
     return true;
   });
 
@@ -123,8 +91,8 @@ function filterInvoices() {
   filteredInvoices.sort((a, b) => {
     if (sort === 'date-desc') return new Date(b.issueDate) - new Date(a.issueDate);
     if (sort === 'date-asc') return new Date(a.issueDate) - new Date(b.issueDate);
-    if (sort === 'amount-desc') return b.amount - a.amount;
-    if (sort === 'amount-asc') return a.amount - b.amount;
+    if (sort === 'amount-desc') return (b.amount || b.total || 0) - (a.amount || a.total || 0);
+    if (sort === 'amount-asc') return (a.amount || a.total || 0) - (b.amount || b.total || 0);
     if (sort === 'duedate-asc') return new Date(a.dueDate) - new Date(b.dueDate);
     return 0;
   });
@@ -134,19 +102,32 @@ function filterInvoices() {
 }
 
 function searchInvoices() {
-  const term = document.getElementById('searchInput').value.toLowerCase();
+  const term = document.getElementById('searchInput')?.value?.toLowerCase() || '';
   filteredInvoices = INVOICES_DB.filter(inv =>
-    inv.number.toLowerCase().includes(term) ||
-    inv.clientName.toLowerCase().includes(term)
+    (inv.number || '').toLowerCase().includes(term) ||
+    (inv.clientName || '').toLowerCase().includes(term)
   );
   currentPage = 1;
   loadInvoices();
 }
 
-function viewInvoice(id) { window.location.href = `/invoice-detail.html?id=${id}`; }
-function downloadInvoice(id) { showToast('Downloading invoice...', 'info'); }
-function emailInvoice(id) { showToast('Sending invoice via email...', 'info'); }
-function deleteInvoice(id) { invoiceToDelete = id; document.getElementById('deleteModal').style.display = 'flex'; }
+function viewInvoice(id) {
+  window.location.href = `/invoice-detail.html?id=${id}`;
+}
+
+function downloadInvoice(id) {
+  showToast('Downloading invoice...', 'info');
+}
+
+function emailInvoice(id) {
+  showToast('Sending invoice via email...', 'info');
+}
+
+function deleteInvoice(id) {
+  invoiceToDelete = id;
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+
 function confirmDelete() {
   INVOICES_DB = INVOICES_DB.filter(i => i.id !== invoiceToDelete);
   localStorage.setItem('invoices', JSON.stringify(INVOICES_DB));
@@ -155,18 +136,29 @@ function confirmDelete() {
   updateStats();
   showToast('Invoice deleted', 'success');
 }
-function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+
+function closeDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
 
 function toggleInvoiceSelection(id) {
-  selectedInvoices.has(id) ? selectedInvoices.delete(id) : selectedInvoices.add(id);
+  if (selectedInvoices.has(id)) {
+    selectedInvoices.delete(id);
+  } else {
+    selectedInvoices.add(id);
+  }
   updateBulkActions();
 }
 
 function toggleSelectAll() {
-  const checked = document.getElementById('selectAll').checked;
+  const checked = document.getElementById('selectAll')?.checked;
   document.querySelectorAll('.invoice-checkbox').forEach(cb => {
     cb.checked = checked;
-    checked ? selectedInvoices.add(cb.dataset.id) : selectedInvoices.delete(cb.dataset.id);
+    if (checked) {
+      selectedInvoices.add(cb.dataset.id);
+    } else {
+      selectedInvoices.delete(cb.dataset.id);
+    }
   });
   updateBulkActions();
 }
@@ -182,9 +174,18 @@ function updateBulkActions() {
   }
 }
 
-function bulkDownload() { showToast(`Downloading ${selectedInvoices.size} invoices...`, 'info'); }
-function bulkEmail() { showToast(`Emailing ${selectedInvoices.size} invoices...`, 'info'); }
-function bulkMarkPaid() { showToast(`Marking ${selectedInvoices.size} as paid...`, 'success'); }
+function bulkDownload() {
+  showToast(`Downloading ${selectedInvoices.size} invoices...`, 'info');
+}
+
+function bulkEmail() {
+  showToast(`Emailing ${selectedInvoices.size} invoices...`, 'info');
+}
+
+function bulkMarkPaid() {
+  showToast(`Marking ${selectedInvoices.size} as paid...`, 'success');
+}
+
 function bulkDelete() {
   if (!confirm(`Delete ${selectedInvoices.size} invoices?`)) return;
   INVOICES_DB = INVOICES_DB.filter(i => !selectedInvoices.has(i.id));
@@ -196,7 +197,9 @@ function bulkDelete() {
   showToast('Invoices deleted', 'success');
 }
 
-function exportInvoices() { showToast('Exporting to CSV...', 'info'); }
+function exportInvoices() {
+  showToast('Exporting to CSV...', 'info');
+}
 
 function updatePagination() {
   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
@@ -214,12 +217,25 @@ function updatePagination() {
   document.getElementById('pageNumbers').innerHTML = html;
 }
 
-function previousPage() { if (currentPage > 1) { currentPage--; loadInvoices(); } }
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    loadInvoices();
+  }
+}
+
 function nextPage() {
   const total = Math.ceil(filteredInvoices.length / itemsPerPage);
-  if (currentPage < total) { currentPage++; loadInvoices(); }
+  if (currentPage < total) {
+    currentPage++;
+    loadInvoices();
+  }
 }
-function goToPage(page) { currentPage = page; loadInvoices(); }
+
+function goToPage(page) {
+  currentPage = page;
+  loadInvoices();
+}
 
 function updateInvoiceCount() {
   const badge = document.getElementById('invoiceCount');
@@ -235,13 +251,15 @@ function toggleUserMenu() {
   document.getElementById('userDropdown')?.classList.toggle('show');
 }
 
-function toggleNotifications() { showToast('No notifications', 'info'); }
+function toggleNotifications() {
+  showToast('No notifications', 'info');
+}
 
 function toggleDarkMode() {
   document.body.classList.toggle('dark-mode');
   const btn = document.getElementById('themeBtn');
   const isDark = document.body.classList.contains('dark-mode');
-  btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  if (btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
   localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
 }
 
@@ -261,7 +279,10 @@ function handleLogout() {
 }
 
 function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  if (!dateStr) return 'N/A';
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return 'Invalid Date';
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function showToast(msg, type = 'info', duration = 3000) {
@@ -286,7 +307,7 @@ document.addEventListener('click', e => {
   }
 });
 
-// Add invoices page specific styles
+// Add invoices page specific styles (your original CSS block - unchanged)
 const style = document.createElement('style');
 style.textContent = `
   .page-header {
@@ -297,7 +318,6 @@ style.textContent = `
     flex-wrap: wrap;
     gap: 1rem;
   }
-
   .page-title-group h1 {
     font-family: var(--font-display);
     font-size: 2rem;
@@ -308,16 +328,13 @@ style.textContent = `
     gap: 0.75rem;
     margin-bottom: 0.5rem;
   }
-
   .page-subtitle {
     color: var(--text-secondary);
   }
-
   .page-actions {
     display: flex;
     gap: 1rem;
   }
-
   .btn-secondary {
     padding: 0.9rem 1.5rem;
     background: var(--bg-secondary);
@@ -331,12 +348,10 @@ style.textContent = `
     gap: 0.5rem;
     transition: all var(--transition-fast);
   }
-
   .btn-secondary:hover {
     border-color: var(--primary);
     background: var(--bg-tertiary);
   }
-
   .btn-primary {
     padding: 0.9rem 1.5rem;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -350,12 +365,10 @@ style.textContent = `
     gap: 0.5rem;
     transition: all var(--transition-fast);
   }
-
   .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-
   .filter-bar {
     display: flex;
     gap: 1.5rem;
@@ -366,12 +379,10 @@ style.textContent = `
     border: 1px solid var(--border);
     flex-wrap: wrap;
   }
-
   .filter-group {
     flex: 1;
     min-width: 200px;
   }
-
   .filter-group label {
     display: block;
     font-weight: 600;
@@ -382,7 +393,6 @@ style.textContent = `
     align-items: center;
     gap: 0.5rem;
   }
-
   .filter-group select {
     width: 100%;
     padding: 0.8rem;
@@ -393,19 +403,16 @@ style.textContent = `
     font-family: var(--font-body);
     transition: all var(--transition-fast);
   }
-
   .filter-group select:focus {
     outline: none;
     border-color: var(--primary);
   }
-
   .receipts-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
   }
-
   .stat-box {
     background: var(--bg-glass);
     border: 1px solid var(--border);
@@ -415,12 +422,10 @@ style.textContent = `
     gap: 1rem;
     transition: all var(--transition-fast);
   }
-
   .stat-box:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-md);
   }
-
   .stat-icon {
     width: 60px;
     height: 60px;
@@ -431,37 +436,29 @@ style.textContent = `
     font-size: 1.5rem;
     color: white;
   }
-
   .stat-icon.blue {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
   }
-
   .stat-icon.green {
     background: linear-gradient(135deg, #10b981, #059669);
   }
-
   .stat-icon.orange {
     background: linear-gradient(135deg, #f59e0b, #d97706);
   }
-
   .stat-icon.purple {
     background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   }
-
   .stat-icon.red {
     background: linear-gradient(135deg, #ef4444, #dc2626);
   }
-
   .stat-details {
     flex: 1;
   }
-
   .stat-label {
     font-size: 0.85rem;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
   }
-
   .stat-number {
     font-family: var(--font-display);
     font-size: 2rem;
@@ -469,7 +466,6 @@ style.textContent = `
     color: var(--text-primary);
     margin: 0;
   }
-
   .receipts-table-wrapper {
     background: var(--bg-glass);
     border: 1px solid var(--border);
@@ -477,16 +473,13 @@ style.textContent = `
     overflow: hidden;
     margin-bottom: 2rem;
   }
-
   .receipts-table {
     width: 100%;
     border-collapse: collapse;
   }
-
   .receipts-table thead {
     background: var(--bg-tertiary);
   }
-
   .receipts-table th {
     padding: 1rem;
     text-align: left;
@@ -494,38 +487,31 @@ style.textContent = `
     color: var(--text-primary);
     font-size: 0.9rem;
   }
-
   .receipts-table td {
     padding: 1rem;
     border-top: 1px solid var(--border);
     color: var(--text-primary);
   }
-
   .empty-state {
     text-align: center;
   }
-
   .empty-state-content {
     padding: 4rem 2rem;
   }
-
   .empty-state-content i {
     font-size: 4rem;
     color: var(--text-tertiary);
     margin-bottom: 1rem;
   }
-
   .empty-state-content h3 {
     font-size: 1.5rem;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
   }
-
   .empty-state-content p {
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
   }
-
   .status-badge {
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
@@ -533,32 +519,26 @@ style.textContent = `
     font-weight: 600;
     text-transform: uppercase;
   }
-
   .status-badge.paid {
     background: rgba(16, 185, 129, 0.1);
     color: var(--success);
   }
-
   .status-badge.pending {
     background: rgba(245, 158, 11, 0.1);
     color: var(--warning);
   }
-
   .status-badge.overdue {
     background: rgba(239, 68, 68, 0.1);
     color: var(--error);
   }
-
   .status-badge.draft {
     background: rgba(107, 114, 128, 0.1);
     color: var(--text-tertiary);
   }
-
   .table-actions {
     display: flex;
     gap: 0.5rem;
   }
-
   .action-btn {
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
@@ -572,13 +552,11 @@ style.textContent = `
     justify-content: center;
     transition: all 0.2s ease;
   }
-
   .action-btn:hover {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
   }
-
   .bulk-actions {
     position: fixed;
     bottom: 2rem;
@@ -594,17 +572,14 @@ style.textContent = `
     box-shadow: var(--shadow-xl);
     z-index: 1000;
   }
-
   .bulk-info {
     font-weight: 600;
     color: var(--text-primary);
   }
-
   .bulk-buttons {
     display: flex;
     gap: 0.75rem;
   }
-
   .btn-bulk {
     padding: 0.7rem 1.2rem;
     border: none;
@@ -618,16 +593,13 @@ style.textContent = `
     background: var(--primary);
     color: white;
   }
-
   .btn-bulk.danger {
     background: var(--error);
   }
-
   .btn-bulk:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
   }
-
   .pagination {
     display: flex;
     justify-content: center;
@@ -635,7 +607,6 @@ style.textContent = `
     gap: 0.5rem;
     margin-top: 2rem;
   }
-
   .page-btn {
     padding: 0.7rem 1.2rem;
     background: var(--bg-secondary);
@@ -649,23 +620,19 @@ style.textContent = `
     gap: 0.5rem;
     transition: all var(--transition-fast);
   }
-
   .page-btn:hover:not(:disabled) {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
   }
-
   .page-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-
   .page-numbers {
     display: flex;
     gap: 0.5rem;
   }
-
   .page-number {
     width: 40px;
     height: 40px;
@@ -677,17 +644,14 @@ style.textContent = `
     font-weight: 600;
     transition: all var(--transition-fast);
   }
-
   .page-number.active {
     background: var(--primary);
     color: white;
     border-color: var(--primary);
   }
-
   .page-number:hover:not(.active) {
     border-color: var(--primary);
   }
-
   .page-ellipsis {
     width: 40px;
     height: 40px;
@@ -696,7 +660,6 @@ style.textContent = `
     justify-content: center;
     color: var(--text-tertiary);
   }
-
   .modal {
     display: none;
     position: fixed;
@@ -708,7 +671,6 @@ style.textContent = `
     align-items: center;
     justify-content: center;
   }
-
   .modal-backdrop {
     position: absolute;
     top: 0;
@@ -718,7 +680,6 @@ style.textContent = `
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
   }
-
   .modal-content {
     position: relative;
     background: var(--bg-secondary);
@@ -728,7 +689,6 @@ style.textContent = `
     box-shadow: var(--shadow-xl);
     overflow: hidden;
   }
-
   .modal-header {
     background: linear-gradient(135deg, var(--error), #dc2626);
     color: white;
@@ -737,14 +697,12 @@ style.textContent = `
     justify-content: space-between;
     align-items: center;
   }
-
   .modal-header h3 {
     margin: 0;
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
-
   .modal-close {
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -758,15 +716,12 @@ style.textContent = `
     justify-content: center;
     transition: all var(--transition-fast);
   }
-
   .modal-close:hover {
     background: rgba(255, 255, 255, 0.3);
   }
-
   .modal-body {
     padding: 2rem;
   }
-
   .modal-footer {
     padding: 1.5rem 2rem;
     border-top: 1px solid var(--border);
@@ -774,7 +729,6 @@ style.textContent = `
     justify-content: flex-end;
     gap: 1rem;
   }
-
   .btn-danger {
     padding: 0.9rem 1.5rem;
     background: var(--error);
@@ -788,44 +742,35 @@ style.textContent = `
     gap: 0.5rem;
     transition: all var(--transition-fast);
   }
-
   .btn-danger:hover {
     background: #dc2626;
     transform: translateY(-2px);
   }
-
   @media (max-width: 768px) {
     .filter-bar {
       flex-direction: column;
     }
-
     .filter-group {
       min-width: 100%;
     }
-
     .page-actions {
       width: 100%;
     }
-
     .btn-secondary, .btn-primary {
       flex: 1;
     }
-
     .receipts-stats {
       grid-template-columns: 1fr;
     }
-
     .bulk-actions {
       flex-direction: column;
       bottom: 1rem;
       padding: 1rem;
     }
-
     .bulk-buttons {
       width: 100%;
       flex-direction: column;
     }
-
     .btn-bulk {
       width: 100%;
       justify-content: center;
