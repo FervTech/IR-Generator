@@ -262,22 +262,9 @@ function toggleUserMenu() {
 }
 
 
-function showToast(msg, type = 'info') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function toggleNotifications() {
+  showToast('No new notifications', 'info');
 }
-
 // Add settings-specific styles
 const style = document.createElement('style');
 style.textContent = `

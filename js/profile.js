@@ -161,42 +161,9 @@ function toggleUserMenu() {
   document.getElementById('userDropdown')?.classList.toggle('show');
 }
 
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('themeBtn');
-  const isDark = document.body.classList.contains('dark-mode');
-  btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-  localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-}
 
-function setupDarkMode() {
-  if (localStorage.getItem('darkMode') === 'enabled') {
-    document.body.classList.add('dark-mode');
-    document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i>';
-  }
-}
-
-function handleLogout() {
-  if (confirm('Sign out?')) {
-    localStorage.removeItem('currentUser');
-    window.location.href = '/login.html';
-  }
-}
-
-function showToast(msg, type = 'info') {
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.className = 'toast-container';
-    document.body.appendChild(container);
-  }
-  const icons = { error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle', success: 'check-circle' };
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${msg}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+function toggleNotifications() {
+  showToast('No new notifications', 'info');
 }
 
 // Add profile-specific styles
