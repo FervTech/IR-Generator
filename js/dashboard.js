@@ -158,10 +158,6 @@ function toggleNotifications() {
 
 
 
-
-
-
-
 // Close dropdown when clicking outside
 document.addEventListener('click', function(e) {
   const userMenu = document.querySelector('.user-menu');
