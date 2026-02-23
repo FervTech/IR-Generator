@@ -92,7 +92,6 @@ function loadReceipts() {
 // ===== UPDATE STATS =====
 function updateStats() {
   const paidReceipts = RECEIPTS_DB.filter(r => r.status === 'paid');
-  const pendingReceipts = RECEIPTS_DB.filter(r => r.status === 'pending');
   const totalAmount = RECEIPTS_DB.reduce((sum, r) => sum + (r.amount || r.total || 0), 0);
 
   document.getElementById('paidReceiptsCount').textContent = paidReceipts.length;
